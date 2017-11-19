@@ -1,0 +1,71 @@
+---
+title: "Dataset Processing (dataset1)"
+author: "Qingyun Lu"
+date: "November 18, 2017"
+output: html_document
+---
+
+```{r}
+setwd("D:/Github/fall2017-project4-fall2017-proj4-grp6")
+train<-read.csv("./data/dataset1/data_train.csv", header = T)
+test<-read.csv("./data/dataset1/data_test.csv", header = T)
+train<-train[,-1]
+test<-test[,-1]
+
+### convert data into matrix
+x<-train1[train1$V1=="V",]
+x<-x[order(x$V2),]
+attr<-unique(x$V2) # get all the attributes
+
+
+###### data processing function for dataset1
+process_dataset1<-function(df){
+  
+  y<-df[df[,1]=="C",]
+  y<-y[order(y[,2]),]
+  user<-unique(y[,2]) # get all the users
+  
+  m<-length(user) # number of users
+  n<-length(col) # number of attributes
+  
+  process_matrix<-matrix(0,nrow = m,ncol = n)
+  rownames(process_matrix)<-user
+  colnames(process_matrix)<-attr
+  
+  # location of users in data_train
+  locate<-c()
+  for(i in 1:m){
+    locate[i]<-which(df[,3]==user[i])
+  }
+  
+  # seperate each user's vote info
+  list<-list()
+  for(i in 1:(length(locate)-1)){
+    list[[i]]<-df[(locate[i]+1):(locate[i+1]-1),2]
+  }
+  
+  # number of votes for each user
+  num<-c()
+  for(i in 1:length(list)){
+    num[i]<-length(list[[i]])
+  }
+  
+  # get the final transformed matrix
+  for(i in 1:length(list)){
+    for(x in 1:num[i]){
+      process_matrix[i,which(col==list[[i]][x])]<-1
+    }
+  }
+  
+  return(as.data.frame(process_matrix))
+}
+
+
+train_matrix<-process_dataset1(train)
+write.csv(train_matrix,"../output/dataset1_train.csv")
+
+test_matrix<-process_dataset1(test)
+write.csv(test_matrix,"../output/dataset1_test.csv")
+
+```
+
