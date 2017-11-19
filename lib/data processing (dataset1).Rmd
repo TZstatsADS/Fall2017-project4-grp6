@@ -13,7 +13,7 @@ train<-train[,-1]
 test<-test[,-1]
 
 ### convert data into matrix
-x<-train1[train1$V1=="V",]
+x<-train[train$V1=="V",]
 x<-x[order(x$V2),]
 attr<-unique(x$V2) # get all the attributes
 
@@ -21,12 +21,11 @@ attr<-unique(x$V2) # get all the attributes
 ###### data processing function for dataset1
 process_dataset1<-function(df){
   
-  y<-df[df[,1]=="C",]
-  y<-y[order(y[,2]),]
-  user<-unique(y[,2]) # get all the users
+  y<-df[df$V1=="C",]
+  user<-unique(y$V2) # get all the users
   
   m<-length(user) # number of users
-  n<-length(col) # number of attributes
+  n<-length(attr) # number of attributes
   
   process_matrix<-matrix(0,nrow = m,ncol = n)
   rownames(process_matrix)<-user
@@ -35,15 +34,15 @@ process_dataset1<-function(df){
   # location of users in data_train
   locate<-c()
   for(i in 1:m){
-    locate[i]<-which(df[,3]==user[i])
+    locate[i]<-which(df$V3==user[i])
   }
   
   # seperate each user's vote info
   list<-list()
-  for(i in 1:(length(locate)-1)){
-    list[[i]]<-df[(locate[i]+1):(locate[i+1]-1),2]
+  for(i in 1:(m-1)){
+    list[[i]]<-df[(locate[i]+1):(locate[i+1]-1),]$V2
   }
-  
+  list[[m]] <- df[(locate[m]+1):nrow(df),]$V2
   # number of votes for each user
   num<-c()
   for(i in 1:length(list)){
@@ -53,7 +52,7 @@ process_dataset1<-function(df){
   # get the final transformed matrix
   for(i in 1:length(list)){
     for(x in 1:num[i]){
-      process_matrix[i,which(col==list[[i]][x])]<-1
+      process_matrix[i,which(attr==list[[i]][x])]<-1
     }
   }
   
