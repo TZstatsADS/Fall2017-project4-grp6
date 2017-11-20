@@ -32,58 +32,60 @@ cluster_model <- function(df, C, tau){
     rownames(gamma[[i]]) <- 0:5
   }
   
-  ## Step2: Expectation
+  mu_new <- mu
+  gamma_new <- gamma
   expect <- matrix(0, C, N) # expectation with rows meaning classes and columns meaning users
-  for(i in 1:C){
-    for(j in 1:N){
-      rated <- (!is.na(df[j, ]))
-      score <- df[j, rated] # find the movies that jth user has rated and the scores of those movies
-      rated_gamma <- gamma[[i]][, rated] #find the gammas for the rated movies of jth user given class i
-      phi <- 1
-      for(k in 1:ncol(rated_gamma)){
-        phi <- phi*rated_gamma[score[k]+1, k]
-      }
-      expect[i,j] <- mu[i]*phi
-    }
-  }
-  expect <- expect/colSums(expect)
   
   ## Iterations based on the stop criterion
-  threshold <- 9999
-  while(threshold >= tau){
+  threshold1 <- 9999
+  threshold2 <- 9999
+  count <- 0
+  while(!(threshold1 <= tau & threshold2 <= tau) ){
+    count <- count + 1
+    print(paste0("iteration = ", count))
+    mu <- mu_new
+    gamma <- gamma_new
     
-    expect <- expect_new  #update expectation
+    ## Step2: Expectation
+    for(j in 1:N){
+      for(i in 1:C){
+        rated <- (!is.na(df[j, ]))
+        score <- df[j, rated] # find the movies that jth user has rated and the scores of those movies
+        rated_gamma <- gamma[[i]][, rated] #find the gammas for the rated movies of jth user given class i
+        phi <- 6^300
+        for(k in 1:ncol(rated_gamma)){
+          phi <- phi*rated_gamma[score[1,k]+1, k]
+        }
+        expect[i,j] <- mu[i]*phi
+      }
+      col_sum <- sum(expect[,j])
+      expect[,j] <- ifelse(col_sum == 0, rep(1/C, C), expect[,j]/col_sum)
+    }
     
     ## Step3: Maximization
-    mu <- rowSums(expect)/N  #update parameters
+    mu_new <- rowSums(expect)/N  #update mu
+    
     for(k in 1:C){
       for(i in 1:6){
         for(j in 1:M){
           rated_user <- (!is.na(df[, j])) # user who has rated movie j
-          rated_expect <- expect[k, rated_user] # expectation of rated_user in class k
-          is_i <- (df[rated_user, j] == i-1) # indicator of whether rated_user's score for movie j is i-1
-          gamma[[k]][i, j] <- sum(rated_expect[is_i])/sum(rated_expect) # updated gamma
+          if(sum(rated_user) != 0){
+            rated_expect <- expect[k, rated_user] # expectation of rated_user in class k
+            is_i <- (df[rated_user, j] == i-1) # indicator of whether rated_user's score for movie j is i-1
+            gamma_new[[k]][i, j] <- sum(rated_expect[is_i])/sum(rated_expect) # updated gamma
+          }
         }
       }
     }
     
     ## Check convergence
-    expect_new <- matrix(0, C, N) 
-    for(i in 1:C){
-      for(j in 1:N){
-        rated <- (!is.na(df[j, ]))
-        score <- df[j, rated] 
-        rated_gamma <- gamma[[i]][, rated] 
-        phi <- 1
-        for(k in 1:ncol(rated_gamma)){
-          phi <- phi*rated_gamma[score[k]+1, k]
-        }
-        expect_new[i,j] <- mu[i]*phi
-      }
+    threshold1 <- mean(abs(mu_new - mu)) #mean absolute difference of mu
+    threshold2 <- 0
+    for(c in 1:C){
+      threshold2 <- max(threshold2,norm(as.matrix(gamma_new[[c]] - gamma[[c]]), "O"))# matrix 1-norm of the difference between updated and old gamma
     }
-    expect_new <- expect/colSums(expect)
+    print(paste0("threshold1 = ", threshold1, " threshold2 = ", threshold2))
     
-    threshold <- norm(expect_new - expect, "O") # matrix 1-norm of the difference between updated and old expectation
   }
   return(list(mu = mu, gamma = gamma))
 }
@@ -137,19 +139,20 @@ cv_error <- rep(NA, K)
 c_list <- c(2,3,6,12)
 for(c in c_list){
   for(k in 1:K){
-    train_df <- matrix(NA, N, M)
+    train_df <- data.frame(matrix(NA, N, M))
     colnames(train_df) <- movie
     rownames(train_df) <- user
     train_df[, s!=k] <- train[, s!=k]
   
-    test_df <- matrix(NA, N, M)
+    test_df <- data.frame(matrix(NA, N, M))
     colnames(test_df) <- movie
     rownames(test_df) <- user
     test_df[,s == k] <- train[ ,s == k]
   
     estimate_df <- test_df
   
-    cm_par <- cluster_model(df = train_df, C = c, tau = 0.01)
+    cm_par <- cluster_model(df = train_df, C = c, tau = 0.1)
+    
     for(i in 1:N){
       for(j in 1:M){
         if(!is.na(test_df[i,j])){
