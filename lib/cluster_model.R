@@ -117,7 +117,7 @@ score_estimation_CM <- function(df, ui, mb, par){
       obs_gamma <- gamma[[c]][, obs_movie] #gamma of rated movies
       
       for(j in 1:sum(obs_movie)){
-        obs[c] <- obs[c] * obs_gamma[obs_score[j]+1, j]
+        obs[c] <- obs[c] * obs_gamma[obs_score[1,j]+1, j]
       }
       
       prob_mb <- gamma[[c]][k+1, mb] #probability of bth movie is rated with score k given class c
@@ -125,6 +125,8 @@ score_estimation_CM <- function(df, ui, mb, par){
     }
     prob[k] <- sum(prob_all)/sum(obs)
   }
+  
+  print(paste0("estimated user = ", ui, " movie = ", mb))
   return(1*prob[1]+2*prob[2]+3*prob[3]+4*prob[4]+5*prob[5])
 }
 
@@ -133,33 +135,40 @@ score_estimation_CM <- function(df, ui, mb, par){
 set.seed(2)
 K <- 5
 n <- ncol(train)
+n1 <- nrow(train)
 n.fold <- floor(n/K)
+n1.fold <- floor(n1/K)
 s <- sample(rep(1:K, c(rep(n.fold, K-1), n-(K-1)*n.fold)))  
-cv_error <- rep(NA, K)
+s1 <- sample(rep(1:K, c(rep(n1.fold, K-1), n1-(K-1)*n1.fold)))  
+
 c_list <- c(2,3,6,12)
-for(c in c_list){
-  for(k in 1:K){
-    train_df <- data.frame(matrix(NA, N, M))
-    colnames(train_df) <- movie
-    rownames(train_df) <- user
-    train_df[, s!=k] <- train[, s!=k]
+validation_error <- rep(NA, length(c_list))
+
+for(c in 1:length(c_list)){
+  train_df <- data.frame(matrix(NA, N, M))
+  colnames(train_df) <- movie
+  rownames(train_df) <- user
   
-    test_df <- data.frame(matrix(NA, N, M))
-    colnames(test_df) <- movie
-    rownames(test_df) <- user
-    test_df[,s == k] <- train[ ,s == k]
+  test_df <- data.frame(matrix(NA, N, M))
+  colnames(test_df) <- movie
+  rownames(test_df) <- user
   
-    estimate_df <- test_df
-  
-    cm_par <- cluster_model(df = train_df, C = c, tau = 0.1)
-    
-    for(i in 1:N){
-      for(j in 1:M){
-        if(!is.na(test_df[i,j])){
-          estimate_df[i,j] <- score_estimation_CM(df = train_df, ui = i, mb = j, par = cm_par)
-        }
-      }
-    }
-    cv_error[k] <- mean(abs(estimate_df-test_df),na.rm = T)
+  for(i in 1:K){
+    train_df[s1 != i, s == i] <- train[s1 != i, s == i]
+    test_df[s1 == i,s == i] <- train[s1 == i ,s == i]
   }
+  
+  estimate_df <- test_df
+  
+  cm_par <- cluster_model(df = train_df, C = c_list[c], tau = 0.01)
+    
+  for(i in 1:N){
+    for(j in 1:M){
+      if(!is.na(test_df[i,j])){
+        estimate_df[i,j] <- score_estimation_CM(df = train_df, ui = i, mb = j, par = cm_par)
+        }
+    }
+  }
+  validation_error[c] <- mean(abs(estimate_df-test_df),na.rm = T)
+  
 }
