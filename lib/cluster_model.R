@@ -1,3 +1,7 @@
+### Author: Shiqi Duan
+### Date: "November 19, 2017"
+
+  
 setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/data/")
 train <- read.csv("../output/dataset2_train.csv",header=T)
 test <- read.csv("../output/dataset2_test.csv",header=T)
@@ -123,3 +127,36 @@ score_estimation_CM <- function(df, ui, mb, par){
 }
 
 
+### 5-fold cross-validation to find best class number C
+set.seed(2)
+K <- 5
+n <- ncol(train)
+n.fold <- floor(n/K)
+s <- sample(rep(1:K, c(rep(n.fold, K-1), n-(K-1)*n.fold)))  
+cv_error <- rep(NA, K)
+c_list <- c(2,3,6,12)
+for(c in c_list){
+  for(k in 1:K){
+    train_df <- matrix(NA, N, M)
+    colnames(train_df) <- movie
+    rownames(train_df) <- user
+    train_df[, s!=k] <- train[, s!=k]
+  
+    test_df <- matrix(NA, N, M)
+    colnames(test_df) <- movie
+    rownames(test_df) <- user
+    test_df[,s == k] <- train[ ,s == k]
+  
+    estimate_df <- test_df
+  
+    cm_par <- cluster_model(df = train_df, C = c, tau = 0.01)
+    for(i in 1:N){
+      for(j in 1:M){
+        if(!is.na(test_df[i,j])){
+          estimate_df[i,j] <- score_estimation_CM(df = train_df, ui = i, mb = j, par = cm_par)
+        }
+      }
+    }
+    cv_error[k] <- mean(abs(estimate_df-test_df),na.rm = T)
+  }
+}
