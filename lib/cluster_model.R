@@ -83,3 +83,43 @@ cluster_model <- function(df, C, tau){
   }
   return(list(mu = mu, gamma = gamma))
 }
+
+
+## estimate scores based on the parameterd obtained by cluster models
+score_estimation_CM <- function(df, ui, mb, par){
+  
+  ###Input: dataframe of training set, index of user, index of movie, parameter list
+  ###Output: estimated score
+  
+  mu <- par$mu
+  gamma <- par$gamma
+  C <- length(gamma)
+  
+  ##probability by Naive Bayes formula
+  prob <- rep(0, 5)
+  
+  obs_movie <- (!is.na(df[ui, ])) #movies rated by the user
+  obs_score <- df[ui, obs_movie]  #scores of movies rated by the user
+  
+  for(k in 1:5){
+    
+    obs <- mu #probability of observed scores
+    prob_all <- rep(1, C) 
+    
+    for(c in 1:C){
+      
+      obs_gamma <- gamma[[c]][, obs_movie] #gamma of rated movies
+      
+      for(j in 1:sum(obs_movie)){
+        obs[c] <- obs[c] * obs_gamma[obs_score[j]+1, j]
+      }
+      
+      prob_mb <- gamma[[c]][k+1, mb] #probability of bth movie is rated with score k given class c
+      prob_all[c] <- obs[c] * prob_mb
+    }
+    prob[k] <- sum(prob_all)/sum(obs)
+  }
+  return(1*prob[1]+2*prob[2]+3*prob[3]+4*prob[4]+5*prob[5])
+}
+
+
