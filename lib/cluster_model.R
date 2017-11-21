@@ -85,10 +85,10 @@ cluster_model <- function(df, C, tau){
           if(sum(rated_user) != 0){
             rated_expect <- expect[k, rated_user] # expectation of rated_user in class k
             is_i <- (df[rated_user, j] == i-1) # indicator of whether rated_user's score for movie j is i-1
-            if(sum(is_i) == 0){
-              gamma_new[[k]][i,j] <- 0
+            if(sum(rated_expect) == 0){
+              gamma_new[[k]][i,j] <- ifelse(i==1, 1, 0)
             }else{
-              gamma_new[[k]][i, j] <- ifelse(sum(rated_expect) == 0, sum(is_i)/sum(rated_user), sum(rated_expect[is_i])/sum(rated_expect)) # updated gamma
+              gamma_new[[k]][i, j] <- sum(rated_expect[is_i])/sum(rated_expect) # updated gamma
             }
           }
         }
