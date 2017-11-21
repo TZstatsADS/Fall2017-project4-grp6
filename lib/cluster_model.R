@@ -23,13 +23,22 @@ cluster_model <- function(df, C, tau){
   #        gamma: probability of scores for a movie given the class 
   
   ## Step1: initialize the parameters
-  mu <- rep(1/C, C)
+  #mu <- rep(1/C, C)
+  set.seed(0)
+  mu <- runif(C)
+  mu <- mu/sum(mu)
   gamma <- list() #each list represents a class
                   #the ijTh element means the probability of rating jth movie with score i in that class 
   for(i in 1:C){
-    gamma[[i]] <- data.frame(matrix(1/6, 6, M))
-    colnames(gamma[[i]]) <- movie
-    rownames(gamma[[i]]) <- 0:5
+    #gamma[[i]] <- data.frame(matrix(1/6, 6, M))
+    gamma[[i]] <- matrix(NA, 6, M)
+    for(m in 1:M){
+      gamma[[i]][,m] <- runif(6)
+      gamma[[i]][,m] <- gamma[[i]][,m]/sum(gamma[[i]][,m])
+      }
+    #gamma[[i]] <- data.frame(gamma[[i]])
+    #colnames(gamma[[i]]) <- movie
+    #rownames(gamma[[i]]) <- 0:5
   }
   
   mu_new <- mu
@@ -144,21 +153,22 @@ s1 <- sample(rep(1:K, c(rep(n1.fold, K-1), n1-(K-1)*n1.fold)))
 c_list <- c(2,3,6,12)
 validation_error <- rep(NA, length(c_list))
 
-for(c in 1:length(c_list)){
-  train_df <- data.frame(matrix(NA, N, M))
-  colnames(train_df) <- movie
-  rownames(train_df) <- user
-  
-  test_df <- data.frame(matrix(NA, N, M))
-  colnames(test_df) <- movie
-  rownames(test_df) <- user
-  
-  for(i in 1:K){
-    train_df[s1 != i, s == i] <- train[s1 != i, s == i]
-    test_df[s1 == i,s == i] <- train[s1 == i ,s == i]
-  }
-  
-  estimate_df <- test_df
+train_df <- data.frame(matrix(NA, N, M))
+colnames(train_df) <- movie
+rownames(train_df) <- user
+
+test_df <- data.frame(matrix(NA, N, M))
+colnames(test_df) <- movie
+rownames(test_df) <- user
+
+for(i in 1:K){
+  train_df[s1 != i, s == i] <- train[s1 != i, s == i]
+  test_df[s1 == i,s == i] <- train[s1 == i ,s == i]
+}
+
+estimate_df <- test_df
+
+for(c in 2:length(c_list)){
   
   cm_par <- cluster_model(df = train_df, C = c_list[c], tau = 0.01)
     
@@ -169,6 +179,7 @@ for(c in 1:length(c_list)){
         }
     }
   }
-  validation_error[c] <- mean(abs(estimate_df-test_df),na.rm = T)
+  write.csv(estimate_df,paste0("../output/cluster_model_validation_class_",c_list[c],".csv"))
+  validation_error[c] <- sum(abs(estimate_df-test_df),na.rm = T)/sum(!is.na(estimate_df-test_df))
   
 }
