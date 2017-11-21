@@ -68,7 +68,11 @@ cluster_model <- function(df, C, tau){
         expect[i,j] <- mu[i]*phi
       }
       col_sum <- sum(expect[,j])
-      expect[,j] <- ifelse(col_sum == 0, rep(1/C, C), expect[,j]/col_sum)
+      if(col_sum == 0){
+        expect[,j] <- rep(1/C, C)
+      }else{
+        expect[,j] <- expect[,j]/col_sum
+        }
     }
     
     ## Step3: Maximization
