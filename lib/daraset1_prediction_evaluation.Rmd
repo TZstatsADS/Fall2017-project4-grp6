@@ -142,10 +142,10 @@ Pick the best score.
 
 from Similarity Weight
 ```{r}
-SCORE_SIM_Spearman= randked_scoring(PRED_SIM_Spearman)
-SCORE_SIM_vec_similarity= randked_scoring(PRED_SIM_vec_similarity)
-SCORE_SIM_mean_sq_diff= randked_scoring(PRED_SIM_mean_sq_diff)
-SCORE_SIM_simrank= randked_scoring(PRED_SIM_simrank)
+SCORE_SIM_Spearman= randked_scoring(PRED_SIM_Spearman,test1)
+SCORE_SIM_vec_similarity= randked_scoring(PRED_SIM_vec_similarity,test1)
+SCORE_SIM_mean_sq_diff= randked_scoring(PRED_SIM_mean_sq_diff,test1)
+SCORE_SIM_simrank= randked_scoring(PRED_SIM_simrank,test1)
 
 SW = c(SCORE_SIM_Spearman, 
        SCORE_SIM_vec_similarity, 
@@ -161,8 +161,8 @@ which.max(SW)
 
 from Variance Weighting
 ```{r}
-SCORE_VAR_Spearman= randked_scoring(PRED_VAR_Spearman)
-SCORE_VAR_vec_similarity= randked_scoring(PRED_VAR_vec_similarity)
+SCORE_VAR_Spearman= randked_scoring(PRED_VAR_Spearman,test1)
+SCORE_VAR_vec_similarity= randked_scoring(PRED_VAR_vec_similarity,test1)
 
 VW = c(SCORE_VAR_Spearman,
        SCORE_VAR_vec_similarity)
@@ -175,8 +175,8 @@ which.max(VW)
 
 from Selecting Neighbors
 ```{r}
-SCORE_SN_weight_threshold= randked_scoring(PRED_SN_weight_threshold)
-SCORE_SN_best_n_estimator= randked_scoring(PRED_SN_best_n_estimator)
+SCORE_SN_weight_threshold= randked_scoring(PRED_SN_weight_threshold,test1)
+SCORE_SN_best_n_estimator= randked_scoring(PRED_SN_best_n_estimator,test1)
 SCORE_SN_combined= randked_scoring(PRED_SN_combined)
 
 SN = c(SCORE_SN_weight_threshold,
