@@ -2,7 +2,7 @@
 #rm(list=ls())
 setwd("D:/Github/fall2017-project4-fall2017-proj4-grp6")
 
-##### Load data
+########################################## Load data #########################################
 
 rowname_change <- function(matrix){
   rownames(matrix) <- matrix[,1]
@@ -47,13 +47,72 @@ vecsim_vw_matrix2 <- read.csv("./output/vectorsimilarity_vm_train2.csv", header 
 # msd + variance weight
 
 
-################################# selecting neighbors #################################
+
+
+########################### get the neighbors' matrix (old ver.) ##############################
+
+#list_to_matrix<-function(list){
+#  length <- c()
+#  for(i in 1:length(list)){
+#    length[i] <- length(list[[i]])
+#  }
+#  max_len <- max(length)
+#  matrix <- matrix(nrow = length(list), ncol = max_len)
+#  for(i in 1:length(list)){
+#    if(length(list[[i]])!=0){
+#      matrix[i,1:length(list[[i]])] <- list[[i]]
+#    }
+#  }
+#  return(matrix)
+#}
+
+
+######################### get the neighbor matrix with 0-1 (updated) ##########################
+
+#### turning list to matrix
+list_to_matrix <- function(list){
+  neighbor_matrix <- matrix(0, nrow = length(list), ncol = length(list))
+  for(i in 1:length(list)){
+    for(u in list[[i]]){
+      if(length(list[[i]]) != 0){
+        neighbor_matrix[i,u] <- 1
+      }
+    }
+    print(i) # To see the process
+  }
+  return(neighbor_matrix)
+}
+
+
+# test
+#thresh_spearman <- read.csv("./output/thresh_spearman.csv",header = T)
+#rownames(thresh_spearman)<-thresh_spearman[,1]
+#thresh_spearman<-thresh_spearman[,-1]
+
+
+
+#neighbor_matrix <- matrix(0,nrow = nrow(spearman_matrix1), ncol = nrow(spearman_matrix1))
+
+#for(i in 1:length(thresh_spearman_list)){
+#  for(u in thresh_spearman_list[[i]]){
+#    neighbor_matrix[i,u] <- 1
+#  }
+#  print(i)
+#}
+
+neighbor_thresh_spearman <- list_to_matrix(thresh_spearman_list)
+
+#which(neighbor_thresh_spearman[1,] == 1)
+#thresh_spearman_list[[1]]
+
+
+###################################### selecting neighbors #####################################
 
 #### correlation-thresholding
 
 #n<-seq(0.1,0.5,0.1) # set threshold number
 
-cor_threshold <- function(matrix, n = 0.3){
+cor_threshold <- function(matrix, n){
   matrix_for_cal <- matrix
   matrix_for_cal[abs(matrix_for_cal) < n] <- NA
   diag(matrix_for_cal) <- NA
@@ -61,7 +120,7 @@ cor_threshold <- function(matrix, n = 0.3){
   for(i in 1:nrow(matrix_for_cal)){
     x <- matrix_for_cal[i,]
     cor_thre[[i]] <- which(is.na(x)==F)
-    #print(i)
+    print(i) # To see the process
   }
   return(cor_thre)
 }
@@ -72,11 +131,16 @@ cor_threshold <- function(matrix, n = 0.3){
 cornbors <- cor_threshold(spearman_matrix1,0.3)
 cornbors2 <- cor_threshold(spearman_matrix2, 0.3)
 
-cornbors_spearman <- list_to_matrix(cornbors)
-cornbors2_spearman <- list_to_matrix(cornbors2)
+thresh_spearman_list <- cor_threshold(spearman_matrix1,0.3)
+neighbor_thresh_spearman <- list_to_matrix(thresh_spearman_list)
 
-write.csv(cornbors_spearman,file = "./output/thresh_spearman.csv")
-write.csv(cornbors2_spearman,file = "./output/thresh2_spearman.csv")
+
+
+#cornbors_spearman <- list_to_matrix(cornbors)
+#cornbors2_spearman <- list_to_matrix(cornbors2)
+
+#write.csv(cornbors_spearman,file = "./output/thresh_spearman.csv")
+#write.csv(cornbors2_spearman,file = "./output/thresh2_spearman.csv")
 
 #### spearman + variance weight
 cornbors3 <- cor_threshold(spearman_vw_matrix1, 0.3)
@@ -88,54 +152,6 @@ cornbors2_spearman_vw <- list_to_matrix(cornbors4)
 write.csv(cornbors_spearman_vw, file = "./output/thresh_spearman_vw.csv")
 write.csv(cornbors2_spearman_vw, file = "./output/thresh2_spearman_vw.csv")
 
-
-
-#### turning list to matrix
-
-####################### get the neighbors' matrix ############################
-
-list_to_matrix<-function(list){
-  length <- c()
-  for(i in 1:length(list)){
-    length[i] <- length(list[[i]])
-  }
-  max_len <- max(length)
-  matrix <- matrix(nrow = length(list), ncol = max_len)
-  for(i in 1:length(list)){
-    if(length(list[[i]])!=0){
-      matrix[i,1:length(list[[i]])] <- list[[i]]
-    }
-  }
-  return(matrix)
-}
-
-############################################################################
-
-#length <- c()
-#for(i in 1:length(cornbors)){
-#  length[i] = length(cornbors[[i]])
-#}
-
-#max_len <- max(length)
-#max_len
-
-
-#cornbor_matrix <- matrix(nrow = nrow(spearman_matrix1), ncol = max_len)
-
-#for(i in 1:nrow(spearman_matrix1)){
-#  cornbor_matrix[i,1:length(cornbors[[i]])] <- cornbors[[i]]
-  #print(i)
-#}
-
-#cornbor_matrix[1,]
-
-#cornbors[[1]]
-
-#spearman_matrix1[abs(spearman_matrix1) < 0.3] <- NA
-#diag(spearman_matrix1)<-NA
-#x<-spearman_matrix1[1,]
-#cor_th <- which(is.na(x)==F)
-#cor_th
 
 
 #### best-n-neighbors
