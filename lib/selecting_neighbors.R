@@ -22,6 +22,7 @@
 cor_threshold <- function(matrix, n){
   matrix_for_cal <- matrix
   matrix_for_cal[abs(matrix_for_cal) < n] <- NA
+  print(matrix_for_cal)
   diag(matrix_for_cal) <- NA
   cor_thre <- list()
   for(i in 1:nrow(matrix_for_cal)){
