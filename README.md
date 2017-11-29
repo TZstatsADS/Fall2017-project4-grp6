@@ -25,6 +25,8 @@ Term: Fall 2017
 	- Rating normalization: Z-score
 	- Cluster models
 
+Note: When you pull the csv files in the output folder, please use "git lfs pull." 
+The files bigger than 100mb are uploaded using [git large file storage](https://git-lfs.github.com/).
 
 **Contribution statement**: ([Please see this file for the statement](doc/a_note_on_contributions.md))
 All team members approve our work presented in this GitHub repository including this contributions statement. 
