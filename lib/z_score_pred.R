@@ -1,29 +1,6 @@
 
 ####################################### Z-score prediction #######################################
 
-# mean rating for each user
-# <- apply(train1, 1, mean)
-mean_rating<-function(matrix){
-  mean_rating <- apply(matrix, 1, mean)
-  return(mean_rating)
-}
-
-# sd for each user
-#sd_rating <- apply(train1, 1, sd)
-
-sd_rating <- function(matrix){
-  sd_rating <- apply(matrix, 1, sd)
-  return(sd_rating)
-}
-
-# z-score calculation part
-#var_rating <- (train1 - mean_rating)/sd_rating
-
-var_rating <- function(matrix){
-  var_rating <- (matrix - mean_rating(matrix))/sd_rating(matrix)
-  return(var_rating)
-}
-
 
 # weight with neibors
 # for user 1
@@ -39,20 +16,32 @@ var_rating <- function(matrix){
 
 #source("./lib/selecting_neighbors.R")
 
+neighbor_threshold_spearman2 <- read.csv("./output/thresh2_spearman.csv", header = T)
+neighbor_threshold_spearman2<-neighbor_threshold_spearman2[,-1]
 
+mean_rating <- apply(matrix,1,mean)
+sd_rating <- apply(matrix,1,sd)
+var_rating <- (matrix - mean_rating)/sd_rating
 
 #### predict with correlation-thresholding 
 
-prediction_threshold <- function(dataset, weight){
-  var_rating <- var_rating(dataset)
+#nnn = neighbor_threshold_spearman2
+#new = neighbor_threshold_spearman2[1:5,1:5]
+#new
+
+
+
+prediction_threshold <- function(dataset, weight, neighbor_matrix){
+  
   mean_rating <- mean_rating(dataset)
   sd_rating <- sd_rating(dataset)
+  var_rating <- var_rating(dataset)
   
-  neighbor <- cor_threshold(weight, 0.3) # with threshold = 0.3
+  neighbor <- neighbor_matrix
   
   pred<-c()
   for(a in 1:nrow(dataset)){
-    u <- neighbor[[a]]
+    u <- as.vector(neighbor[a,])
     x<- rep(0,ncol(dataset))
     sum <- 0
     
@@ -68,6 +57,32 @@ prediction_threshold <- function(dataset, weight){
   }
 }
 
+
+
+
+
+
+c<-c(1,1,NA)
+mean(c,na.rm = T)
+
+neighbor
+
+library(matrixStats)
+z_score<-function(df, w){
+  #Input: Rating dataset with users in row and items in columns, Weight matrix between users
+  #Output: Prediction matrix with users in row and items in columns
+  N <- nrow(df)
+  M <- ncol(df)
+  
+  df_mean <- matrix(rep(rowMeans(df), M), N, M)
+  df_sd <- matrix(rep(rowSds(df), M), N, M)
+  w_sum <- matrix(rep(rowSums(w), M), N, M)
+  df_scale <- (df - df_mean)/df_sd
+  
+  
+  p <- df_sd * (t(df_scale) %*% w)/w_sum
+  return(p + df_mean)
+}
 
 
 #### predict with best n neighbors
