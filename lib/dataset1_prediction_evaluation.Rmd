@@ -37,6 +37,8 @@ neighbor_SIM_Spearman_mat <- read.csv("./output/neighbor_thresh_spearman.csv",he
 
 rownames(SIM_Spearman_mat) = SIM_Spearman_mat[,1]
 SIM_Spearman_mat = SIM_Spearman_mat[,-1]
+rownames(neighbor_SIM_Spearman_mat) = neighbor_SIM_Spearman_mat[,1]
+neighbor_SIM_Spearman_mat = neighbor_SIM_Spearman_mat[,-1]
 
 PRED_SIM_Spearman = z_score(test1, w=SIM_Spearman_mat, neighbor_matrix= neighbor_SIM_Spearman_mat)
 
@@ -47,10 +49,14 @@ write.csv(PRED_SIM_Spearman,file=file_name)
 Similarity weight - Vector Similarity
 ```{r}
 SIM_vec_similarity_mat <- read.csv("../output/vectorsimilarity_train1.csv",header=T)
+neighbor_SIM_vec_similarity_mat <- read.csv("../output/neighbor_thresh_vecsim.csv",header=T)
+
 rownames(SIM_vec_similarity_mat) = SIM_vec_similarity_mat[,1]
 SIM_vec_similarity_mat = SIM_vec_similarity_mat[,-1]
+rownames(neighbor_SIM_vec_similarity_mat) = neighbor_SIM_vec_similarity_mat[,1]
+neighbor_SIM_vec_similarity_mat = neighbor_SIM_vec_similarity_mat[,-1]
 
-PRED_SIM_vec_similarity = prediction_threshold(test1, weight=SIM_vec_similarity_mat)
+PRED_SIM_vec_similarity = z_score(test1, w=SIM_vec_similarity_mat, neighbor_SIM_vec_similarity_mat)
 
 file_name="./output/PRED_SIM_vec_similarity.csv"
 write.csv(PRED_SIM_vec_similarity,file=file_name)
