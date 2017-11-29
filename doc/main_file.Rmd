@@ -10,10 +10,57 @@ This file is currently a template for implementing collabrative filtering algori
 ## Step 0: Load the packages, specify directories
 
 ```{r}
-if (!require("pacman")) install.packages("pacman")
-pacman::p_load(text2vec, dplyr, qlcMatrix, kernlab, knitr)
+packages.used=c("pROC","matrixStats","dplyr")
+packages.needed=setdiff(packages.used, intersect(installed.packages()[,1], packages.used))
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE)
+}
+library(pROC)
+library(matrixStats)
+library(dplyr)
 
-setwd("~/Dropbox/Project4_WhoIsWho/doc")
+setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/data/")
 # here replace it with your own path or manually set it in RStudio
 # to where this rmd file is located
+```
+## Step 1: Load and process the data
+
+For each record in the dataset, there are some information we want to extract and store them in a regular matrix form: users id in rows, items id in columns, and each element in the matrix represents the rating score. As the two original datasets are in different forms, we use two processing method to preprocess the two datasets.
+
+```{r}
+source("../lib/process.R")
+
+process1 <- FALSE    # if TRUE, then process dataset1 in this main file
+process2 <- FALSE    # if TRUE, then process dataset2 in this main file
+
+# Prepocess dataset1
+if(process1){
+  train<-read.csv("./dataset1/data_train.csv", header = T)
+  test<-read.csv("./dataset1/data_test.csv", header = T)
+  train<-train[,-1]
+  test<-test[,-1]
+  ### convert data into matrix
+  x<-train[train$V1=="V",]
+  x<-x[order(x$V2),]
+  attr<-unique(x$V2) # get all the attributes
+  
+  train_matrix<-process_dataset1(train)
+  write.csv(train_matrix,"../output/dataset1_train.csv")
+  test_matrix<-process_dataset1(test)
+  write.csv(test_matrix,"../output/dataset1_test.csv")
+}
+
+# Prepocess dataset2
+
+if(process2){
+  train <- read.csv("./dataset2/data_train.csv",header=T)
+  test<-read.csv("./dataset2/data_test.csv",header=T)
+  movie <- unique(train$Movie)
+  c <-length(movie)
+  
+  train_matrix <- process_dataset2(df = train)
+  write.csv(train_matrix,"../output/dataset2_train.csv")
+  test_matrix <- process_dataset2(df = test)
+  write.csv(test_matrix,"../output/dataset2_test.csv")
+}
 ```
