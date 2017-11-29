@@ -20,7 +20,7 @@ library(matrixStats)
 library(dplyr)
 library(lsa)
 
-setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/data/")
+setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/doc")
 # here replace it with your own path or manually set it in RStudio
 # to where this rmd file is located
 ```
@@ -36,8 +36,8 @@ process2 <- FALSE    # if TRUE, then process dataset2 in this main file
 
 # Prepocess dataset1
 if(process1){
-  train<-read.csv("./dataset1/data_train.csv", header = T)
-  test<-read.csv("./dataset1/data_test.csv", header = T)
+  train<-read.csv("../data/dataset1/data_train.csv", header = T)
+  test<-read.csv("../data/dataset1/data_test.csv", header = T)
   train<-train[,-1]
   test<-test[,-1]
   ### convert data into matrix
@@ -54,8 +54,8 @@ if(process1){
 # Prepocess dataset2
 
 if(process2){
-  train <- read.csv("./dataset2/data_train.csv",header=T)
-  test<-read.csv("./dataset2/data_test.csv",header=T)
+  train <- read.csv("../data/dataset2/data_train.csv",header=T)
+  test<-read.csv("../data/dataset2/data_test.csv",header=T)
   movie <- unique(train$Movie)
   c <-length(movie)
   
@@ -65,8 +65,8 @@ if(process2){
   write.csv(test_matrix,"../output/dataset2_test.csv")
 }
 # load processed dataset1
-train1 <- read.csv("./output/dataset1_train.csv",header=T)
-test1 <- read.csv("./output/dataset1_test.csv",header=T)
+train1 <- read.csv("../output/dataset1_train.csv",header=T)
+test1 <- read.csv("../output/dataset1_test.csv",header=T)
 # load processed dataset2
 train2 <- read.csv("../output/dataset2_train.csv",header=T)
 test2 <- read.csv("../output/dataset2_test.csv",header=T)
@@ -217,6 +217,8 @@ score_estimation_CM <- function(train_df, test_df, par){
 
 ## 5-fold cross-validation
 run.cm = FALSE #if TRUE, then run 5-fold cross-validation on training set of EachMovie
+c_list <- c(2,3,6,12) #cluster numebrs we would like to try
+
 if(run.cm){
   set.seed(2)
   K <- 5
@@ -227,7 +229,6 @@ if(run.cm){
   s <- sample(rep(1:K, c(rep(n.fold, K-1), n-(K-1)*n.fold)))  
   s1 <- sample(rep(1:K, c(rep(n1.fold, K-1), n1-(K-1)*n1.fold)))  
 
-  c_list <- c(2,3,6,12)
   validation_error <-  matrix(NA, K, length(c_list))
 
   train_df <- data.frame(matrix(NA, N, M))
@@ -386,9 +387,9 @@ train2 = train2[,-1]
 rownames(test2) = test2[,1]
 test2 = test2[,-1]
 
-rum.sw1 = FALSE #If TURE run Spearman function on datasets
-rum.sw2 = FALSE #If TURE run vector similarity function on datasets
-rum.sw3 = FALSE #If TURE run mean squared difference function on datasets
+run.sw1 = FALSE #If TURE run Spearman function on datasets
+run.sw2 = FALSE #If TURE run vector similarity function on datasets
+run.sw3 = FALSE #If TURE run mean squared difference function on datasets
 if(run.sw1){
   w11 = spearman_weight(train1)
   w12 = spearman_weight(train2)
