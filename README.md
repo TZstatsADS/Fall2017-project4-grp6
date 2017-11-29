@@ -4,7 +4,7 @@
 
 Term: Fall 2017
 
-+ Team #
++ Team #6
 + Projec title: Collaborative Filtering Algorithms Implementation & Evaluation
 + Team members
 	+ Shiqi Duan
@@ -22,6 +22,7 @@ Term: Fall 2017
 - Selecting Neighbors - Weight Threshold
 - Selecting Neighbors - Best-n-estimator
 - Selecting Neighbors - Combined
+- Rating normalization: Z-score
 - Cluster models
 
 
