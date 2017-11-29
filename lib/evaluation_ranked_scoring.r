@@ -12,14 +12,17 @@
 #######################################
 
 # for testing:
-m <- 4
-n <- 3
-matrix = round(matrix(runif(m * n), m, n))
+#m <- 4
+#n <- 3
+#matrix = round(matrix(runif(m * n), m, n))
 
 randked_scoring <- function(matrix){
   nrow = nrow(matrix)
   ncol = ncol(matrix)
   a_minus_one = nrow/2 - 1
+  
+  # rank/sort by vote value
+  numerator_matrix = t(apply(matrix, 1, sort,decreasing=T))
   
   # denominator of r_a
   denom_vector = rep(NA, ncol)
@@ -28,7 +31,7 @@ randked_scoring <- function(matrix){
   }
   
   # get a vector of r_a
-  utility_matrix = matrix %*% diag(1 / denom_vector)
+  utility_matrix = numerator_matrix %*% diag(1 / denom_vector)
   r_a_vector = rowSums(utility_matrix)
   
   # get a r_a_max value
@@ -42,4 +45,4 @@ randked_scoring <- function(matrix){
   return(r)
 }
 
-randked_scoring(matrix)
+#randked_scoring(matrix)

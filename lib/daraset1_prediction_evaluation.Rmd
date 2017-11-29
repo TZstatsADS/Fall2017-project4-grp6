@@ -191,5 +191,3 @@ which.max(SN)
 
 ```
 
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
