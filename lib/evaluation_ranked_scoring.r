@@ -16,13 +16,13 @@
 #n <- 3
 #matrix = round(matrix(runif(m * n), m, n))
 
-randked_scoring <- function(matrix){
-  nrow = nrow(matrix)
-  ncol = ncol(matrix)
+randked_scoring <- function(pred_matrix, observed_matrix){
+  nrow = nrow(pred_matrix)
+  ncol = ncol(pred_matrix)
   a_minus_one = nrow/2 - 1
   
-  # rank/sort by vote value
-  numerator_matrix = t(apply(matrix, 1, sort,decreasing=T))
+  # rank/sort pred_matrix by vote value. Assuming d=0 here.
+  numerator_matrix = t(apply(pred_matrix, 1, sort,decreasing=T))
   
   # denominator of r_a
   denom_vector = rep(NA, ncol)
@@ -35,21 +35,27 @@ randked_scoring <- function(matrix){
   r_a_vector = rowSums(utility_matrix)
   
   # get a r_a_max value
-  max_numerator_vec = rep(1, ncol)
-  max_utility_vec = max_numerator_vec %*% diag(1/denom_vector)
-  max_r_a = rowSums(max_utility_vec)
+  max_numerator_matrix = t(apply(observed_matrix, 1, sort,decreasing=T))
+  max_utility_matrix = max_numerator_matrix %*% diag(1 / denom_vector)
+  max_r_a_vector = rowSums(max_utility_matrix)
   
   # Get the r_a / r_a_max score
-  r = 100 * sum(r_a_vector)/sum(max_r_a * ncol)
+  r = 100 * sum(r_a_vector)/sum(max_r_a_vector)
   
   return(r)
 }
 
-#randked_scoring(matrix)
+### for testing:
+#m <- 4
+#n <- 3
+#observed_matrix = round(matrix(runif(m * n), m, n))
+#pred_matrix = matrix(runif(m * n), m, n)
 
+#randked_scoring(pred_matrix,observed_matrix)
 
-# written by Shiqi
-randked_scoring <- function(matrix){
+########
+# written by Shiqi:
+randked_scoring_shiqi <- function(matrix){
   N = nrow(matrix)
   M = ncol(matrix)
   a_minus_one = nrow/2 - 1
