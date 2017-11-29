@@ -37,7 +37,7 @@ var_rating <- function(matrix){
 #}
 
 
-source("./lib/selecting_neighbors.R")
+#source("./lib/selecting_neighbors.R")
 
 
 

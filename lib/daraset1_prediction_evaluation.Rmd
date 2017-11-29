@@ -15,8 +15,8 @@ knitr::opts_knit$set(root.dir = '~/fall2017-project4-fall2017-proj4-grp6')
 ```{r}
 # Load dataset
 rm(list=ls())
-train1 <- read.csv("./output/dataset1_train.csv",header=T)
-test1 <- read.csv("./output/dataset1_test.csv",header=T)
+train1 <- read.csv("../output/dataset1_train.csv",header=T)
+test1 <- read.csv("../output/dataset1_test.csv",header=T)
 
 rownames(train1) = train1[,1]
 train1 = train1[,-1]
@@ -28,33 +28,47 @@ Prediction
 
 Load correlation matrices for prediction
 ```{r}
-#Load correlation matrices
-spearman_cor_mat <- read.csv("./output/spearman_train1.csv",header=T)
+spearman_cor_mat <- read.csv("../output/spearman_train1.csv",header=T)
 rownames(spearman_cor_mat) = spearman_cor_mat[,1]
 spearman_cor_mat = spearman_cor_mat[,-1]
+```
 
-vec_similarity_cor_mat <- read.csv("./output/vectorsimilarity_train1.csv",header=T)
+```{r}
+vec_similarity_cor_mat <- read.csv("../output/vectorsimilarity_train1.csv",header=T)
 rownames(vec_similarity_cor_mat) = vec_similarity_cor_mat[,1]
 vec_similarity_cor_mat = vec_similarity_cor_mat[,-1]
+```
 
-mean_sq_diff_mat <- read.csv("./output/meansqdiff_train1.csv",header=T)
+```{r}
+mean_sq_diff_mat <- read.csv("../output/meansqdiff_train1.csv",header=T)
 rownames(mean_sq_diff_mat) = mean_sq_diff_mat[,1]
 mean_sq_diff_mat = mean_sq_diff_mat[,-1]
-
 ```
+
 
  Load source
 ```{r}
-source("./lib/evaluation_ranked_scoring.r")
-source("./lib/z_score_pred.r")
-source("./lib/selecting_neighbors.r")
+source('../lib/evaluation_ranked_scoring.r')
+source('../lib/z_score_pred.R')
+source('../lib/selecting_neighbors.r')
 ```
 
 Similarity Weight Prediction
 ```{r}
 spearman_pred = prediction(train1, weight=spearman_cor_mat)
 
+```
 
+```{r}
+vec_similarity_pred = prediction(train1, weight=vec_similarity_cor_mat)
+```
+
+```{r}
+mean_sq_diff_pred = prediction(train1, weight=mean_sq_diff_mat)
+```
+
+```{r}
+spearman_pred = prediction(train1, weight=spearman_cor_mat)
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.

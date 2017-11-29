@@ -3,13 +3,13 @@
 # Saaya Yasuda (sy2569)
 #######################################
 
-rm(list=ls())
-setwd('~/Documents/Github/fall2017-project4-fall2017-proj4-grp6')
+#rm(list=ls())
+#setwd('~/Documents/Github/fall2017-project4-fall2017-proj4-grp6')
 
 #######################################
 # install & load necessary packages
 #######################################
-packages.used=c("lsa")
+packages.used=c("lsa",readr)
 
 packages.needed=setdiff(packages.used, intersect(installed.packages()[,1], packages.used))
 if(length(packages.needed)>0){

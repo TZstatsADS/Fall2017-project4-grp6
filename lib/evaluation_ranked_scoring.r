@@ -4,7 +4,7 @@
 #######################################
 
 #rm(list=ls())
-setwd('~/Documents/Github/fall2017-project4-fall2017-proj4-grp6')
+#setwd('~/Documents/Github/fall2017-project4-fall2017-proj4-grp6')
 
 #######################################
 # Ranked scroing function
@@ -12,9 +12,9 @@ setwd('~/Documents/Github/fall2017-project4-fall2017-proj4-grp6')
 #######################################
 
 # for testing:
-#m <- 4
-#n <- 3
-#matrix = round(matrix(runif(m * n), m, n))
+m <- 4
+n <- 3
+matrix = round(matrix(runif(m * n), m, n))
 
 randked_scoring <- function(matrix){
   nrow = nrow(matrix)
@@ -42,4 +42,4 @@ randked_scoring <- function(matrix){
   return(r)
 }
 
-#randked_scoring(matrix)
+randked_scoring(matrix)
