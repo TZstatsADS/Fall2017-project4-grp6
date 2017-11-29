@@ -1,6 +1,7 @@
 ### Author: Shiqi Duan
 ### Date: "November 19, 2017"
 
+library(pROC)
 
 setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/data/")
 train <- read.csv("../output/dataset2_train.csv",header=T)
@@ -220,11 +221,6 @@ save(specificity,file=paste("../output/em_specificity.RData"))
 plot(1-specificity,sensitivity,xlab="1-Specificity",ylab="Sensitivity", type="l")
 abline(0,1, col="red", lty=2)
 
-height = (sens[-1]+sens[-length(sens)])/2
-width = -diff(omspec) # = diff(rev(omspec))
-sum(height[-1]*width[-1])
-
-
-library(pROC)
 test_roc <- ifelse(test>=4,1,0)
-roc(as.factor(as.vector(test_roc)), as.vector(estimate), na.rm = T)
+estimate_roc <- ifelse(estimate>=4,1,0)
+roc(as.vector(test_roc), as.vector(estimate_roc), na.rm = T)
