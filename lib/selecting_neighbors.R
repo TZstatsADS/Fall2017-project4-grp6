@@ -4,52 +4,218 @@ setwd("D:/Github/fall2017-project4-fall2017-proj4-grp6")
 
 ########################################## Load data #########################################
 
-rowname_change <- function(matrix){
-  rownames(matrix) <- matrix[,1]
-  matrix <- matrix[,-1]
-  return(matrix)
-}
+train1 <- read.csv("./output/dataset1_train.csv",header=T)
+test1 <- read.csv("./output/dataset1_test.csv",header=T)
+train2 <- read.csv("./output/dataset2_train.csv",header=T)
+test2 <- read.csv("./output/dataset2_test.csv",header=T)
 
-# spearman
-spearman_matrix1<-read.csv("./output/spearman_train1.csv",header = T)
-spearman_matrix2<-read.csv("./output/spearman_train2.csv",header = T)
+rownames(train1) <- train1[,1]
+train1 <- train1[,-1]
+rownames(train2) <- train2[,1]
+train2 <- train2[,-1]
+train2[is.na(train2)]<-0
 
-rownames(spearman_matrix1)<-spearman_matrix1[,1]
-spearman_matrix1<-spearman_matrix1[,-1]
-rownames(spearman_matrix2)<-spearman_matrix2[,1]
-spearman_matrix2<-spearman_matrix2[,-1]
+rownames(test1) <- test1[,1]
+test1 <- test1[,-1]
+rownames(test2) <- test2[,1]
+test2 <- test2[,-1]
+test2[is.na(test2)]<-0
 
-# spearman + variance weight
-spearman_vw_matrix1 <- read.csv("./output/spearman_vm_train1.csv", header = T)
-spearman_vw_matrix2 <- read.csv("./output/spearman_vm_train2.csv", header = T)
+#### weight
+sp_w1 = read.csv("./output/spearman_train1.csv",header=T)
+sp_w2 = read.csv("./output/spearman_train2.csv",header=T)
+sp_vm_w1 = read.csv("./output/spearman_vm_train1.csv",header=T)
+sp_vm_w2 = read.csv("./output/spearman_vm_train1.csv",header=T)
+vs_w1 = read.csv("./output/vectorsimilarity_train1.csv",header=T)
+vs_w2 = read.csv("./output/vectorsimilarity_train1.csv",header=T)
+vs_vm_w1 = read.csv("./output/vectorsimilarity_vm_train1.csv",header=T)
+vs_vm_w2 = read.csv("./output/vectorsimilarity_vm_train2.csv",header=T)
 
-rownames(spearman_vw_matrix1)<-spearman_vw_matrix1[,1]
-spearman_vw_matrix1<-spearman_vw_matrix1[,-1]
-rownames(spearman_vw_matrix2)<-spearman_vw_matrix2[,1]
-spearman_vw_matrix2<-spearman_vw_matrix2[,-1]
+msd_w1 = read.csv("./output/meansqdiff_train1.csv",header=T)
+msd_w2 = read.csv("./output/meansqdiff_train2.csv",header=T)
+
+rownames(sp_w1) <- sp_w1[,1]
+sp_w1 <- sp_w1[,-1]
+
+rownames(sp_w2) <- sp_w2[,1]
+sp_w2 <- sp_w2[,-1]
+
+rownames(sp_vm_w1) <- sp_vm_w1[,1]
+sp_vm_w1 <- sp_vm_w1[,-1]
+
+rownames(sp_vm_w2) <- sp_vm_w2[,1]
+sp_vm_w2 <- sp_vm_w2[,-1]
+
+rownames(vs_w1) <- vs_w1[,1]
+vs_w1 <- vs_w1[,-1]
+
+rownames(vs_w2) <- vs_w2[,1]
+vs_w2 <- vs_w2[,-1]
+
+rownames(vs_vm_w1) <- vs_vm_w1[,1]
+vs_vm_w1 <- vs_vm_w1[,-1]
+
+rownames(vs_vm_w2) <- vs_vm_w2[,1]
+vs_vm_w2 <- vs_vm_w2[,-1]
+
+rownames(msd_w1) <- msd_w1[,1]
+msd_w1 <- msd_w1[,-1]
+
+rownames(msd_w2) <- msd_w2[,1]
+msd_w2 <- msd_w2[,-1]
+
+################################### Get the neighbor matrix under different method ###################################
+
+#### neighbor matrix
+
+# threshold (cor_threshold)
+thresh_spearman_list <- cor_threshold(sp_w1,0.3)
+neighbor_thresh_spearman <- list_to_matrix(thresh_spearman_list)
+
+write.csv(neighbor_thresh_spearman, file = "./output/neighbor_thresh_spearman.csv")
 
 
-# vector similarity
-vecsim_matrix1 <- read.csv("./output/vectorsimilarity_train1.csv", header = T)
-vecsim_matrix2 <- read.csv("./output/vectorsimilarity_train2.csv", header = T)
 
-rownames(vecsim_matrix1)<-vecsim_matrix1[,1]
-vecsim_matrix1<-vecsim_matrix1[,-1]
-rownames(vecsim_matrix2)<-vecsim_matrix2[,1]
-vecsim_matrix2<-vecsim_matrix2[,-1]
+thresh_spearman_list2 <- cor_threshold(sp_w2,0.3)
+neighbor_thresh_spearman2 <- list_to_matrix(thresh_spearman_list2)
 
-# vector similarity + variance weight
-vecsim_vw_matrix1 <- read.csv("./output/vectorsimilarity_vm_train1.csv", header = T)
-vecsim_vw_matrix2 <- read.csv("./output/vectorsimilarity_vm_train2.csv", header = T)
+write.csv(neighbor_thresh_spearman2, file = "./output/neighbor_thresh_spearman2.csv")
 
-# msd
 
-# msd + variance weight
+thresh_spearman_vw_list <- cor_threshold(sp_vm_w1,0.3)
+neighbor_thresh_spearman_vw <- list_to_matrix(thresh_spearman_vw_list)
+
+write.csv(neighbor_thresh_spearman_vw, file = "./output/neighbor_thresh_spearman_wv.csv")
 
 
 
+thresh_spearman_vw_list2 <- cor_threshold(sp_vm_w2,0.3)
+neighbor_thresh_spearman_vw2 <- list_to_matrix(thresh_spearman_vw_list2)
 
-########################### get the neighbors' matrix (old ver.) ##############################
+
+write.csv(neighbor_thresh_spearman_vw2, file = "./output/neighbor_thresh_spearman_wv2.csv")
+
+
+thresh_vecsim_list <- cor_threshold(vs_w1,0.3)
+neighbor_thresh_vecsim <- list_to_matrix(thresh_vecsim_list)
+
+
+write.csv(neighbor_thresh_vecsim, file = "./output/neighbor_thresh_vecsim.csv")
+
+
+thresh_vecsim_list2 <- cor_threshold(vs_w2,0.3)
+neighbor_thresh_vecsim2 <- list_to_matrix(thresh_vecsim_list2)
+
+
+write.csv(neighbor_thresh_vecsim2, file = "./output/neighbor_thresh_vecsim2.csv")
+
+
+
+thresh_vecsim_vw_list <- cor_threshold(vs_vm_w1,0.3)
+neighbor_thresh_vecsim_vm <- list_to_matrix(thresh_vecsim_vw_list)
+
+
+write.csv(neighbor_thresh_vecsim_vm, file = "./output/neighbor_thresh_vecsim_vm.csv")
+
+
+
+thresh_vecsim_vw_list2 <- cor_threshold(vs_vm_w2,0.3)
+neighbor_thresh_vecsim_vm2 <- list_to_matrix(thresh_vecsim_vw_list2)
+
+write.csv(neighbor_thresh_vecsim_vm2, file = "./output/neighbor_thresh_vecsim_vm2.csv")
+
+
+### sth wrong with msd weight matrix
+thresh_msd_list <- cor_threshold(msd_w1, 0.3)
+neighbor_thresh_msd <- list_to_matrix(thresh_msd_list)
+
+thresh_msd_list2 <- cor_threshold(msd_w2,0.3)
+neighbor_thresh_msd2 <- list_to_matrix(thresh_msd_list2)
+
+
+# bnn (bestnn)
+bnn_spearman_list <- bestnn(sp_w1,30)
+neighbor_bnn_spearman <- list_to_matrix(bnn_spearman_list)
+
+write.csv(neighbor_bnn_spearman, file = "./output/neighbor_bnn_spearman.csv")
+
+
+
+bnn_spearman_list2 <- bestnn(sp_w2,30)
+neighbor_bnn_spearman2 <- list_to_matrix(bnn_spearman_list2)
+
+write.csv(neighbor_bnn_spearman2, file = "./output/neighbor_bnn_spearman2.csv")
+
+
+
+bnn_spearman_vw_list <- bestnn(sp_vm_w1,30)
+neighbor_bnn_spearman_vw <- list_to_matrix(bnn_spearman_vw_list)
+
+write.csv(neighbor_bnn_spearman_vw, file = "./output/neighbor_bnn_spearman_vw.csv")
+
+
+bnn_spearman_vw_list2 <- bestnn(sp_vm_w2,30)
+neighbor_bnn_spearman_vm2 <- list_to_matrix(bnn_spearman_vw_list2)
+
+
+write.csv(neighbor_bnn_spearman_vm2, file = "./output/neighbor_bnn_spearman_vm2.csv")
+
+
+
+bnn_vecsim_list <- bestnn(vs_w1,30)
+neighbor_bnn_vecsim <- list_to_matrix(bnn_vecsim_list)
+
+write.csv(neighbor_bnn_vecsim, file = "./output/neighbor_bnn_vecsim.csv")
+
+
+bnn_vecsim_list2 <- bestnn(vs_w2,30)
+neighbor_bnn_vecsim2 <- list_to_matrix(bnn_vecsim_list2)
+
+
+write.csv(neighbor_bnn_vecsim2, file = "./output/neighbor_bnn_vecsim2.csv")
+
+
+bnn_vecsim_vw_list <- bestnn(vs_vm_w1,30)
+neighbor_bnn_vecsim_vm <- list_to_matrix(bnn_vecsim_vw_list)
+
+write.csv(neighbor_bnn_vecsim_vm, file = "./output/neighbor_bnn_vecsim_vm.csv")
+
+
+bnn_vecsim_vw_list2 <- bestnn(vs_vm_w2,30)
+neighbor_bnn_vecsim_vm2 <- list_to_matrix(bnn_vecsim_vw_list2)
+
+write.csv(neighbor_bnn_vecsim_vm2, file = "./output/neighbor_bnn_vecsim_vm2.csv")
+
+
+
+# sth wrong with msd weight matrix
+bnn_msd_list <- bestnn(msd_w1, 30)
+neighbor_bnn_msd <- list_to_matrix(bnn_msd_list)
+
+
+bnn_msd_list2 <- bestnn(msd_w2,30)
+neighbor_bnn_msd2 <- list_to_matrix(thresh_bnn_list2)
+
+# combined (combined)
+
+list1 = thresh_spearman_list
+list2 = bnn_spearman_list
+comb_spearman_list <- combined(sp_w1)
+neighbor_comb_spearman <- list_to_matrix(comb_spearman_list)
+
+write.csv(neighbor_comb_spearman, file = "./output/neighbor_comb_spearman.csv")
+
+
+list1 = thresh_spearman_list2
+list2 = bnn_spearman_list2
+comb_spearman_list2 <- combined(sp_w2)
+neighbor_comb_spearman2 <- list_to_matrix(comb_spearman_list2)
+
+write.csv(neighbor_comb_spearman2, file = "./output/neighbor_comb_spearman2.csv")
+
+
+
+########################### get the neighbor matrix (old ver.) ##############################
 
 #list_to_matrix<-function(list){
 #  length <- c()
@@ -125,33 +291,6 @@ cor_threshold <- function(matrix, n){
   return(cor_thre)
 }
 
-# set threshold as 0.3
-
-#### spearman
-cornbors <- cor_threshold(spearman_matrix1,0.3)
-cornbors2 <- cor_threshold(spearman_matrix2, 0.3)
-
-thresh_spearman_list <- cor_threshold(spearman_matrix1,0.3)
-neighbor_thresh_spearman <- list_to_matrix(thresh_spearman_list)
-
-
-
-#cornbors_spearman <- list_to_matrix(cornbors)
-#cornbors2_spearman <- list_to_matrix(cornbors2)
-
-#write.csv(cornbors_spearman,file = "./output/thresh_spearman.csv")
-#write.csv(cornbors2_spearman,file = "./output/thresh2_spearman.csv")
-
-#### spearman + variance weight
-cornbors3 <- cor_threshold(spearman_vw_matrix1, 0.3)
-cornbors4 <- cor_threshold(spearman_vw_matrix2, 0.3)
-
-cornbors_spearman_vw <- list_to_matrix(cornbors3)
-cornbors2_spearman_vw <- list_to_matrix(cornbors4)
-
-write.csv(cornbors_spearman_vw, file = "./output/thresh_spearman_vw.csv")
-write.csv(cornbors2_spearman_vw, file = "./output/thresh2_spearman_vw.csv")
-
 
 
 #### best-n-neighbors
@@ -162,7 +301,7 @@ bestnn <- function(matrix, nnbors){
   best <- list()
   for(i in 1:nrow(matrix)){
     best[[i]] <- order(matrix[i,], decreasing = T)[2:(nnbors+1)]
-    #print(i)
+    print(i)
   }
   return(best)
 }
@@ -180,12 +319,12 @@ bnnbors <- bestnn(spearman_matrix1, 30) # nnbors = 30
 
 
 #### combined
-bnn = bestnn(matrix, nnbors)
-thresh = cor_threshold(matrix, n)
+list1 = bestnn(matrix, nnbors)
+list2 = cor_threshold(matrix, n)
 
-combined <- function(matrix, n, nnbors){
-  bnn = bnn
-  thresh = thresh
+combined <- function(matrix){
+  bnn = list1
+  thresh = list2
   combine <- list()
   for(i in 1:nrow(matrix)){
     combine[[i]] <- unique(c(bnn[[i]],thresh[[i]])) 
