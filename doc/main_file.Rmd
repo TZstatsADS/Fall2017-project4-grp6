@@ -1,0 +1,19 @@
+---
+title: "main_file"
+author: "Shiqi Duan"
+date: "2017/11/29"
+output: html_document
+---
+
+This file is currently a template for implementing collabrative filtering algorithms. We implement the methods on a two datasets, Microsoft Web data, and EachMovie, provided by the project instructors. The two datasets are splited into a training set and d test set by the intructors. 
+
+## Step 0: Load the packages, specify directories
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(text2vec, dplyr, qlcMatrix, kernlab, knitr)
+
+setwd("~/Dropbox/Project4_WhoIsWho/doc")
+# here replace it with your own path or manually set it in RStudio
+# to where this rmd file is located
+```

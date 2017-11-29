@@ -1,6 +1,7 @@
 ### Author: Shiqi Duan
 ### Date: "November 19, 2017"
 
+library(pROC)
 
 setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/data/")
 train <- read.csv("../output/dataset2_train.csv",header=T)
@@ -18,6 +19,12 @@ user <- rownames(train)
 
 ### function for cluster models
 cluster_model <- function(df, C, tau){
+  #Input: dataframe to train, number of classes, threshold to determine convergence
+  #Output: parameters for cluster models: 
+  #        mu: probability of belonging to class c
+  #        gamma: probability of scores for a movie given the class 
+  
+  ## Step1: initialize the parameters
   set.seed(2)
   mu <- runif(C)
   mu <- mu/sum(mu)
@@ -57,6 +64,7 @@ cluster_model <- function(df, C, tau){
     mu <- mu_new
     gamma <- gamma_new
     
+    ## Step2: Expectation
     phi <- matrix(0, C, N)
     for(k in 1:6){
       phi <- phi + t(log(gamma[,,k]))%*%w[,,k]
@@ -68,10 +76,11 @@ cluster_model <- function(df, C, tau){
     }
     phi <- ifelse(phi == rep(colSums(phi),each=C), 1, phi/rep(colSums(phi),each=C))
 
+    ## Step3: Maximization
     mu_new <- rowSums(phi)/N  #update mu
 
     for(k in 1:6){
-      gamma_new[,,k] <- w[,,k]%*%t(phi)/w[,,7]%*%t(phi)
+      gamma_new[,,k] <- w[,,k]%*%t(phi)/w[,,7]%*%t(phi) #update gamma
     }
     gamma_new[gamma_new == 0] <- 10^(-100)
     if(sum(is.na(gamma_new)) != 0){
@@ -79,6 +88,7 @@ cluster_model <- function(df, C, tau){
       gamma_new[is_zero] <- rep(1/6, length(is_zero))
     }
     
+    ## Check convergence
     threshold1 <- mean(abs(mu_new - mu)) #mean absolute difference of mu
     threshold2 <- 0
     for(c in 1:C){
@@ -92,9 +102,9 @@ cluster_model <- function(df, C, tau){
 
 score_estimation_CM <- function(train_df, test_df, par){
   
-  ###Input: dataframe of training set, index of user, index of movie, parameter list
+  ###Input: dataframe of training set, test set, parameter list
   ###Output: estimated score
-  
+  set.seed(2)
   mu <- par$mu
   gamma <- par$gamma
   C <- length(mu)
@@ -109,21 +119,21 @@ score_estimation_CM <- function(train_df, test_df, par){
   ##probability by Naive Bayes formula
   prob <- array(0,c(N,M,7))
   prob_mu <- matrix(mu, N, C, byrow = TRUE) 
+  phi <- matrix(0, C, N)
+  for(k in 1:6){
+    phi <- phi + t(log(gamma[,,k]))%*%w[,,k]
+  }
+  
+  phi <- exp(phi)
+  
+  den <- matrix(diag(prob_mu%*%phi), N, M, byrow=FALSE)   #denominater in equation (2) of cluster model notes
+  
   
   for(k in 1:6){
     print(paste0("k = ", k))
     
-    phi <- matrix(0, C, N)
-    for(k in 1:6){
-      phi <- phi + t(log(gamma[,,k]))%*%w[,,k]
-    }
-    
-    phi <- exp(phi)
-
     num <- (t(phi)*prob_mu)%*%t(gamma[,,k]) #numerator in equation (2) of cluster model notes
-    den <- matrix(diag(prob_mu%*%phi), N, M, byrow=FALSE)           #denominatro in equation (2) of cluster model notes
-    
-    prob[,,k] <- ifelse(num==den & num == 0, runif(1), num/den)
+    prob[,,k] <- ifelse(num==den & num == 0, runif(1)/6, num/den)
     prob[,,7] <- prob[,,7] + k*prob[,,k]
   }
   return(prob[,,7]*t(w[,,7]))
@@ -131,7 +141,7 @@ score_estimation_CM <- function(train_df, test_df, par){
     
     
       
-### Use 20% training data as validation set to find best class number C
+### 5-fold cross validation to find best class number C
 set.seed(2)
 K <- 5
 n <- ncol(train)
@@ -153,7 +163,7 @@ colnames(test_df) <- movie
 rownames(test_df) <- user
 #i=5
 
-for(i in 1:K-1){
+for(i in 1:K){
   train_df[s1 != i, ] <- train[s1 != i, ]
   train_df[s1 == i, s != i] <- train[s1==i, s != i]
   test_df[s1 == i,s == i] <- train[s1 == i ,s == i]
@@ -175,9 +185,13 @@ for(i in 1:K-1){
     validation_error[i,c] <- sum(abs(estimate_df-test_df),na.rm = T)/sum(!is.na(estimate_df-test_df))
   }
 }
+
+save(validation_error, file=paste0("../output/validation_err.RData"))
+
 cv_error<-colMeans(validation_error)
 plot(c_list,cv_error,xlab="number of class",ylab="cv-error",col="blue",type="l")
 points(c_list,cv_error,col="red",type="o")
+
 
 class = c_list[which.min(cv_error)]
 print(paste("Best class number is", class))
@@ -190,7 +204,7 @@ write.csv(estimate,paste0("../output/cluster_model_prediction.csv"))
 error_em<- sum(abs(estimate-test),na.rm = T)/sum(!is.na(estimate-test))
 
 # ROC of EM algorithm
-threshold <- seq(0,6,by=0.02)
+threshold <- seq(1,6,by=0.02)
 sensitivity <- rep(0, length(threshold))
 specificity <- rep(0,length(threshold))
 for(i in 1:length(threshold)){
@@ -199,9 +213,14 @@ for(i in 1:length(threshold)){
   test_t <- ifelse(test>=t,1,0)
   estimate_t <- ifelse(estimate>=t,1,0)
   sensitivity[i] <- sum(test_t == 1 & estimate_t == 1, na.rm=T)/sum(test_t == 1, na.rm=T)
-  specificity[i] <- ifelse(t<=1,0,sum(test_t == 0 & estimate_t == 0, na.rm=T)/sum(test_t == 0, na.rm=T))
+  specificity[i] <- sum(test_t == 0 & estimate_t == 0, na.rm=T)/sum(test_t == 0, na.rm=T)
 }
+save(sensitivity,file=paste("../output/em_sensitivity.RData"))
+save(specificity,file=paste("../output/em_specificity.RData"))
+
 plot(1-specificity,sensitivity,xlab="1-Specificity",ylab="Sensitivity", type="l")
-library(pROC)
+abline(0,1, col="red", lty=2)
+
 test_roc <- ifelse(test>=4,1,0)
-roc(as.factor(as.vector(test_roc)), as.vector(estimate), na.rm = T)
+estimate_roc <- ifelse(estimate>=4,1,0)
+roc(as.vector(test_roc), as.vector(estimate_roc), na.rm = T)
