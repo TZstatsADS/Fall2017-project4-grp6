@@ -18,6 +18,10 @@ Load dataset
 test1 <- read.csv("./output/dataset1_test.csv",header=T)
 rownames(test1) = test1[,1]
 test1 = test1[,-1]
+
+train1 <- read.csv("./output/dataset1_train.csv",header=T)
+rownames(train1) = train1[,1]
+train1 = train1[,-1]
 ```
 
 Load source
@@ -30,7 +34,7 @@ Prediction
 
 Load correlation matrices for prediction.
 
-Similarity weight - Spearman
+Similarity weight - Spearman & no variance & neighbor_similarity
 ```{r}
 SIM_Spearman_mat <- read.csv("./output/spearman_train1.csv",header=T)
 neighbor_SIM_Spearman_mat <- read.csv("./output/neighbor_thresh_spearman.csv",header=T)
@@ -40,11 +44,51 @@ SIM_Spearman_mat = SIM_Spearman_mat[,-1]
 rownames(neighbor_SIM_Spearman_mat) = neighbor_SIM_Spearman_mat[,1]
 neighbor_SIM_Spearman_mat = neighbor_SIM_Spearman_mat[,-1]
 
-PRED_SIM_Spearman = z_score(test1, w=SIM_Spearman_mat, neighbor_matrix= neighbor_SIM_Spearman_mat)
+PRED_SIM_Spearman = z_score(train1, w=SIM_Spearman_mat, neighbor_matrix= neighbor_SIM_Spearman_mat)
 
 file_name="./output/PRED_SIM_Spearman.csv"
 write.csv(PRED_SIM_Spearman,file=file_name)
+
+SCORE_SIM_Spearman= randked_scoring(PRED_SIM_Spearman,test1)
+SCORE_SIM_Spearman
 ```
+
+Similarity weight - Spearman & variance weighting & neighbor_similarity
+```{r}
+SIM_Spearman_mat_vw <- read.csv("./output/spearman_vm_train1.csv",header=T)
+neighbor_SIM_Spearman_mat_vw <- read.csv("./output/neighbor_thresh_spearman_wv.csv",header=T)
+
+rownames(SIM_Spearman_mat_vw) = SIM_Spearman_mat_vw[,1]
+SIM_Spearman_mat_vw = SIM_Spearman_mat_vw[,-1]
+rownames(neighbor_SIM_Spearman_mat_vw) = neighbor_SIM_Spearman_mat_vw[,1]
+neighbor_SIM_Spearman_mat_vw = neighbor_SIM_Spearman_mat_vw[,-1]
+
+PRED_SIM_Spearman_vw = z_score(train1, w=SIM_Spearman_mat_vw, neighbor_matrix= neighbor_SIM_Spearman_mat_vw)
+
+file_name="./output/PRED_SIM_Spearman_vw.csv"
+write.csv(PRED_SIM_Spearman_vw,file=file_name)
+
+SCORE_SIM_Spearman_vw= randked_scoring(PRED_SIM_Spearman_vw,test1)
+SCORE_SIM_Spearman_vw
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end
+#########################################################
 
 Similarity weight - Vector Similarity
 ```{r}
