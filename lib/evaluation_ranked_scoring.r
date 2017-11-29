@@ -42,5 +42,4 @@ randked_scoring <- function(matrix){
   return(r)
 }
 
-randked_scoring(matrix)
-
+#randked_scoring(matrix)

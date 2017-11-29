@@ -1,6 +1,6 @@
 
-rm(list=ls())
-setwd("D:/Github/fall2017-project4-fall2017-proj4-grp6")
+#rm(list=ls())
+#setwd("D:/Github/fall2017-project4-fall2017-proj4-grp6")
 
 # Load data
 
