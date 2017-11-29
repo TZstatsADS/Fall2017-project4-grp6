@@ -1,23 +1,23 @@
 
-rm(list=ls())
-setwd("D:/Github/fall2017-project4-fall2017-proj4-grp6")
+#rm(list=ls())
+#setwd("D:/Github/fall2017-project4-fall2017-proj4-grp6")
 
 # Load data
 
-spearman_matrix1<-read.csv("./output/spearman_train1.csv",header = T)
-spearman_matrix2<-read.csv("./output/spearman_train2.csv",header = T)
+#spearman_matrix1<-read.csv("./output/spearman_train1.csv",header = T)
+#spearman_matrix2<-read.csv("./output/spearman_train2.csv",header = T)
 
-rownames(spearman_matrix1)<-spearman_matrix1[,1]
-spearman_matrix1<-spearman_matrix1[,-1]
-rownames(spearman_matrix2)<-spearman_matrix2[,1]
-spearman_matrix2<-spearman_matrix2[,-1]
+#rownames(spearman_matrix1)<-spearman_matrix1[,1]
+#spearman_matrix1<-spearman_matrix1[,-1]
+#rownames(spearman_matrix2)<-spearman_matrix2[,1]
+#spearman_matrix2<-spearman_matrix2[,-1]
 
 
 ################################# selecting neighbors #################################
 
 #### correlation-thresholding
 
-n<-seq(0.1,0.5,0.1) # set threshold number
+#n<-seq(0.1,0.5,0.1) # set threshold number
 
 cor_threshold <- function(matrix, n){
   matrix_for_cal <- matrix
@@ -32,7 +32,8 @@ cor_threshold <- function(matrix, n){
   return(cor_thre)
 }
 
-cornbors <- cor_threshold(spearman_matrix1,0.3)
+# set threshold as 
+#cornbors <- cor_threshold(spearman_matrix1,0.3)
 
 #cornbors[[1]]
 
@@ -45,7 +46,7 @@ cornbors <- cor_threshold(spearman_matrix1,0.3)
 
 #### best-n-neighbors
 
-nnbors<-c(20,40)
+#nnbors<-c(20,40)
 
 bestnn <- function(matrix, nnbors){
   best <- list()
@@ -56,9 +57,11 @@ bestnn <- function(matrix, nnbors){
   return(best)
 }
 
-bnnbors <- bestnn(spearman_matrix1, 20) # nnbors = 20
+#bnnbors <- bestnn(spearman_matrix1, 30) # nnbors = 30
 
-#bestnn <- matrix(ncol=10, nrow=nrow(train1)) # nnbors=10
+
+
+#bestnn <- matrix(ncol=10, nrow=nrow(train1)) # nnbors=30
 #for(i in 1:nrow(train1)){
 #  bestnn[i,]<-order(spearman_matrix1_new[i,], decreasing = T)[2:11]
 #}
@@ -67,3 +70,5 @@ bnnbors <- bestnn(spearman_matrix1, 20) # nnbors = 20
 
 
 #### combined (in process)
+
+
