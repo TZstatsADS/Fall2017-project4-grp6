@@ -43,7 +43,7 @@ var_rating <- function(matrix){
 
 #### predict with correlation-thresholding 
 
-prediction <- function(dataset, weight){
+prediction_threshold <- function(dataset, weight){
   var_rating <- var_rating(dataset)
   mean_rating <- mean_rating(dataset)
   sd_rating <- sd_rating(dataset)
@@ -72,7 +72,7 @@ prediction <- function(dataset, weight){
 
 #### predict with best n neighbors
 
-prediction <- function(dataset, weight){
+prediction_bnn <- function(dataset, weight){
   var_rating <- var_rating(dataset)
   mean_rating <- mean_rating(dataset)
   sd_rating <- sd_rating(dataset)
