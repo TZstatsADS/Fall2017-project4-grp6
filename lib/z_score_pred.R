@@ -36,14 +36,23 @@ var_rating <- function(matrix){
 #  x <- x + vec
 #}
 
+
+source("./lib/selecting_neighbors.R")
+
+
+
+#### predict with correlation-thresholding 
+
 prediction <- function(dataset, weight){
   var_rating <- var_rating(dataset)
   mean_rating <- mean_rating(dataset)
   sd_rating <- sd_rating(dataset)
   
+  neighbor <- cor_threshold(weight, 0.3) # with threshold = 0.3
+  
   pred<-c()
   for(a in 1:nrow(dataset)){
-    u <- bnnbors[[a]]
+    u <- neighbor[[a]]
     x<- rep(0,ncol(dataset))
     sum <- 0
     
@@ -58,6 +67,36 @@ prediction <- function(dataset, weight){
     pred <- rbind(pred, prediction)
   }
 }
+
+
+
+#### predict with best n neighbors
+
+prediction <- function(dataset, weight){
+  var_rating <- var_rating(dataset)
+  mean_rating <- mean_rating(dataset)
+  sd_rating <- sd_rating(dataset)
+  
+  neighbor <- bestnn(weight, 0.3) # with threshold = 0.3
+  
+  pred<-c()
+  for(a in 1:nrow(dataset)){
+    u <- neighbor[[a]]
+    x<- rep(0,ncol(dataset))
+    sum <- 0
+    
+    for(i in u){
+      vec = var_rating[i,] * weight[1,i]
+      x <- x + vec
+      count <- weight[1,i]
+      sum = sum + count
+    }
+    #print(a)
+    prediction <- mean_rating[a] + sd_rating[a] * x / sum
+    pred <- rbind(pred, prediction)
+  }
+}
+
 
 #pred<-c()
 #for(a in 1:nrow(train1)){
