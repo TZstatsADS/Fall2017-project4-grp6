@@ -24,7 +24,7 @@ cluster_model <- function(df, C, tau){
   
   ## Step1: initialize the parameters
   #mu <- rep(1/C, C)
-  set.seed(0)
+  set.seed(2)
   mu <- runif(C)
   mu <- mu/sum(mu)
   gamma <- list() #each list represents a class
@@ -168,17 +168,21 @@ rownames(train_df) <- user
 test_df <- data.frame(matrix(NA, N, M))
 colnames(test_df) <- movie
 rownames(test_df) <- user
-
+#i=5
 for(i in 1:K){
-  train_df[s1 != i, s == i] <- train[s1 != i, s == i]
+  train_df[s1 != i, ] <- train[s1 != i, ]
+  train_df[s1 == i, s != i] <- train[s1==i, s != i]
   test_df[s1 == i,s == i] <- train[s1 == i ,s == i]
 }
+
 
 estimate_df <- test_df
 
 for(c in 1:length(c_list)){
   
-  cm_par <- cluster_model(df = train_df, C = c_list[c], tau = 0.01)
+  cm_par <- cluster_model(df = train_df, C = c_list[c], tau = 0.05)
+  save(cm_par, file=paste0("../output/cm_par_",c_list[c],"class.RData"))
+  
     
   for(i in 1:N){
     for(j in 1:M){
