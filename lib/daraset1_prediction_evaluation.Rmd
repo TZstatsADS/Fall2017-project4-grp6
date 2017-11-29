@@ -45,7 +45,7 @@ SIM_vec_similarity_mat <- read.csv("../output/vectorsimilarity_train1.csv",heade
 rownames(SIM_vec_similarity_mat) = SIM_vec_similarity_mat[,1]
 SIM_vec_similarity_mat = SIM_vec_similarity_mat[,-1]
 
-PRED_SIM_vec_similarity = prediction(test1, weight=SIM_vec_similarity_mat)
+PRED_SIM_vec_similarity = prediction_threshold(test1, weight=SIM_vec_similarity_mat)
 
 file_name="./output/PRED_SIM_vec_similarity.csv"
 write.csv(PRED_SIM_vec_similarity,file=file_name)
@@ -57,7 +57,7 @@ SIM_mean_sq_diff_mat <- read.csv("../output/meansqdiff_train1.csv",header=T)
 rownames(SIM_mean_sq_diff_mat) = SIM_mean_sq_diff_mat[,1]
 SIM_mean_sq_diff_mat = SIM_mean_sq_diff_mat[,-1]
 
-PRED_SIM_mean_sq_diff = prediction(test1, weight=SIM_mean_sq_diff_mat)
+PRED_SIM_mean_sq_diff = prediction_threshold(test1, weight=SIM_mean_sq_diff_mat)
 
 file_name="./output/PRED_SIM_mean_sq_diff.csv"
 write.csv(PRED_SIM_mean_sq_diff,file=file_name)
@@ -69,7 +69,7 @@ SIM_simrank_mat <- read.csv("../output/[FILE_NAME_FOR_SIMRANK_MATRIX].csv",heade
 rownames(SIM_simrank_mat) = SIM_simrank_mat[,1]
 SIM_simrank_mat = SIM_simrank_mat[,-1]
 
-PRED_SIM_simrank = prediction(test1, weight=SIM_simrank_mat)
+PRED_SIM_simrank = prediction_threshold(test1, weight=SIM_simrank_mat)
 
 file_name="./output/PRED_SIM_simrank.csv"
 write.csv(PRED_SIM_simrank,file=file_name)
@@ -81,7 +81,7 @@ VAR_Spearman_mat <- read.csv("../output/spearman_vm_train1.csv",header=T)
 rownames(VAR_Spearman_mat) = VAR_Spearman_mat[,1]
 VAR_Spearman_mat = VAR_Spearman_mat[,-1]
 
-PRED_VAR_Spearman = prediction(test1, weight=VAR_Spearman_mat)
+PRED_VAR_Spearman = prediction_threshold(test1, weight=VAR_Spearman_mat)
 
 file_name="./output/PRED_VAR_Spearman.csv"
 write.csv(PRED_VAR_Spearman,file=file_name)
@@ -93,7 +93,7 @@ VAR_vec_similarity_mat <- read.csv("../output/vectorsimilarity_vm_train1.csv",he
 rownames(VAR_vec_similarity_mat) = VAR_vec_similarity_mat[,1]
 VAR_vec_similarity_mat = VAR_vec_similarity_mat[,-1]
 
-PRED_VAR_vec_similarity = prediction(test1, weight=VAR_vec_similarity_mat)
+PRED_VAR_vec_similarity = prediction_threshold(test1, weight=VAR_vec_similarity_mat)
 
 file_name="./output/PRED_VAR_vec_similarity.csv"
 write.csv(PRED_VAR_vec_similarity,file=file_name)
@@ -105,7 +105,7 @@ SN_weight_threshold_mat <- read.csv("../output/[FILE_NAME_FOR_SN_WT_MATRIX].csv"
 rownames(SN_weight_threshold_mat) = SN_weight_threshold_mat[,1]
 SN_weight_threshold_mat = SN_weight_threshold_mat[,-1]
 
-PRED_SN_weight_threshold = prediction(test1, weight=SN_weight_threshold_mat)
+PRED_SN_weight_threshold = prediction_bnn(test1, weight=SN_weight_threshold_mat)
 
 file_name="./output/PRED_SN_weight_threshold.csv"
 write.csv(PRED_SN_weight_threshold,file=file_name)
@@ -117,7 +117,7 @@ SN_best_n_estimator_mat <- read.csv("../output/[FILE_NAME_FOR_SN_BNE_MATRIX].csv
 rownames(SN_best_n_estimator_mat) = SN_best_n_estimator_mat[,1]
 SN_best_n_estimator_mat = SN_best_n_estimator_mat[,-1]
 
-PRED_SN_best_n_estimator = prediction(test1, weight=SN_best_n_estimator_mat)
+PRED_SN_best_n_estimator = prediction_bnn(test1, weight=SN_best_n_estimator_mat)
 
 file_name="./output/PRED_SN_best_n_estimator.csv"
 write.csv(PRED_SN_best_n_estimator,file=file_name)
@@ -129,7 +129,7 @@ SN_combined_mat <- read.csv("../output/[FILE_NAME_FOR_SN_COMBINED_MATRIX].csv",h
 rownames(SN_combined_mat) = SN_combined_mat[,1]
 SN_combined_mat = SN_combined_mat[,-1]
 
-PRED_SN_combined = prediction(test1, weight=SN_combined_mat)
+PRED_SN_combined = prediction_bnn(test1, weight=SN_combined_mat)
 
 file_name="./output/PRED_SN_combined.csv"
 write.csv(PRED_SN_combined,file=file_name)
