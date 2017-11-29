@@ -1,0 +1,62 @@
+---
+title: "Prediction & Evaluation for the Dataset 1"
+author: "Saaya Yasuda"
+output: html_notebook
+---
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r setup}
+
+knitr::opts_knit$set(root.dir = '~/fall2017-project4-fall2017-proj4-grp6')
+```
+
+
+```{r}
+# Load dataset
+rm(list=ls())
+train1 <- read.csv("./output/dataset1_train.csv",header=T)
+test1 <- read.csv("./output/dataset1_test.csv",header=T)
+
+rownames(train1) = train1[,1]
+train1 = train1[,-1]
+rownames(test1) = test1[,1]
+test1 = test1[,-1]
+```
+
+Prediction
+
+Load correlation matrices for prediction
+```{r}
+#Load correlation matrices
+spearman_cor_mat <- read.csv("./output/spearman_train1.csv",header=T)
+rownames(spearman_cor_mat) = spearman_cor_mat[,1]
+spearman_cor_mat = spearman_cor_mat[,-1]
+
+vec_similarity_cor_mat <- read.csv("./output/vectorsimilarity_train1.csv",header=T)
+rownames(vec_similarity_cor_mat) = vec_similarity_cor_mat[,1]
+vec_similarity_cor_mat = vec_similarity_cor_mat[,-1]
+
+mean_sq_diff_mat <- read.csv("./output/meansqdiff_train1.csv",header=T)
+rownames(mean_sq_diff_mat) = mean_sq_diff_mat[,1]
+mean_sq_diff_mat = mean_sq_diff_mat[,-1]
+
+```
+
+ Load source
+```{r}
+source("./lib/evaluation_ranked_scoring.r")
+source("./lib/z_score_pred.r")
+source("./lib/selecting_neighbors.r")
+```
+
+Similarity Weight Prediction
+```{r}
+spearman_pred = prediction(train1, weight=spearman_cor_mat)
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).

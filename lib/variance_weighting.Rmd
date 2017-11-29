@@ -1,0 +1,53 @@
+```{r}
+library("lsa")
+setwd("/Users/aple/Desktop/opt/data")
+train1 <- read.csv("data_train1.csv",header=T)
+test1 <- read.csv("data_test1.csv",header=T)
+train2 <- read.csv("data_train2.csv",header=T)
+test2 <- read.csv("data_test2.csv",header=T)
+
+rownames(train1) = train1[,1]
+train1 = train1[,-1]
+rownames(test1) = test1[,1]
+test1 = test1[,-1]
+rownames(train2) = train2[,1]
+train2 = train2[,-1]
+rownames(test2) = test2[,1]
+test2 = test2[,-1]
+
+pearson_zcore_weight <- function(matrix){
+  file=deparse(substitute(matrix))
+  file_name= paste0("./output/pearson_zscore_",file,".csv")
+  
+  matrix[is.na(matrix)] = 0
+  matrix = t(matrix)
+  w = cor(scale(matrix),use="everything",method="pearson")
+  
+  write.csv(w,file=file_name)
+}
+
+variance_weight <- function(matrix){
+  file=deparse(substitute(matrix))
+  file_name= paste0("./output/pearson_zscore_",file,".csv")
+  
+  matrix[is.na(matrix)] = 0
+  matrix.t = t(matrix)
+  var = apply(matrix,1,var)
+  min=min(var)
+  max=max(var)
+  weight<-function(vector){
+    vector * (var(vector)-min/max)
+  }
+  matrix=scale(matrix)
+  w = cor(apply(matrix,1,weight),use="everything",method="pearson")
+  
+  write.csv(w,file=file_name)
+}
+
+w1 = variance_weight(train1)
+w2 = variance_weight(train2)
+
+system.time(pearson_zcore_weight(train1))
+system.time(pearson_zcore_weight(train2))y
+```
+
