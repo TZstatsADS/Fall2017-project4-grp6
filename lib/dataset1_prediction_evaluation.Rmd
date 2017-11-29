@@ -8,6 +8,10 @@ output: html_notebook
 knitr::opts_knit$set(root.dir = '~/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6')
 ```
 
+Note:
+Note: When you pull the csv files in the output folder, please use "git lfs pull." 
+The files bigger than 100mb are uploaded using [git large file storage](https://git-lfs.github.com/).
+
 Load dataset
 ```{r}
 #rm(list=ls())
@@ -29,10 +33,12 @@ Load correlation matrices for prediction.
 Similarity weight - Spearman
 ```{r}
 SIM_Spearman_mat <- read.csv("./output/spearman_train1.csv",header=T)
+neighbor_SIM_Spearman_mat <- read.csv("./output/neighbor_thresh_spearman.csv",header=T)
+
 rownames(SIM_Spearman_mat) = SIM_Spearman_mat[,1]
 SIM_Spearman_mat = SIM_Spearman_mat[,-1]
 
-PRED_SIM_Spearman = z_score(test1, weight=SIM_Spearman_mat)
+PRED_SIM_Spearman = z_score(test1, w=SIM_Spearman_mat, neighbor_matrix= neighbor_SIM_Spearman_mat)
 
 file_name="./output/PRED_SIM_Spearman.csv"
 write.csv(PRED_SIM_Spearman,file=file_name)
