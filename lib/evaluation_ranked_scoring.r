@@ -46,3 +46,31 @@ randked_scoring <- function(matrix){
 }
 
 #randked_scoring(matrix)
+
+
+# written by Shiqi
+randked_scoring <- function(matrix){
+  N = nrow(matrix)
+  M = ncol(matrix)
+  a_minus_one = nrow/2 - 1
+  d = 0
+  # rank/sort by vote value
+  numerator_matrix = max(matrix-d,0)
+  
+  # denominator of r_a
+  denom_vec = 2^(1:M/a_minus_one)
+  denom_mat = matrix(rep(denom_vec, N), N, M, byrow=T)
+  
+  # get a vector of r_a
+  utility_matrix = numerator_matrix*matrix/denom_mat
+  r_a_vector = rowSums(utility_matrix)
+  
+  # get a r_a_max value
+  max_utility_vec = numerator_matrix/denom_mat
+  max_r_a = rowSums(max_utility_vec)
+  
+  # Get the r_a / r_a_max score
+  r = 100 * sum(r_a_vector)/sum(max_r_a * ncol)
+  
+  return(r)
+}
