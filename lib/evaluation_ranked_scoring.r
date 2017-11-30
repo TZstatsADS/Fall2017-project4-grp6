@@ -37,7 +37,7 @@ rank_matrix <- function(pred_matrix, observed_matrix){
 
 #######################################
 # Ranked scroing function
-# Input: predicted matrix & test set matrix.
+# Input: predicted matrix & test set matrix.Also alpha value.
 #        These matrices need to have user names in rownames.
 # Output: return the ranked score for the test set matrix
 #######################################

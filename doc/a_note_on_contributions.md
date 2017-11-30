@@ -30,16 +30,16 @@ Saaya Yasuda
 - - Similarity weight - Vector Similarity, 
 - - Similarity weight - Mean Square Difference.
 - Posted corresponding correlation matrices as csv files for the algorithms above.
-- Wrote the Ranked Scoring evaluation function for dataset 1
-- Wrote prediction and evaluation rmd file for dataset 1, to find the best algorithm using the ranked scoring function.
-- Wrote Readme file
+- Wrote the Ranked Scoring evaluation function for dataset 1.
+- Wrote prediction and evaluation rmd file for dataset 1, to find the best algorithm using the ranked scoring function. Generated the pdf file for the dataset 1 evaluation.
+- Wrote Readme file.
+- Wrote main_file.Rmd with Shiqi. Formatted and generated the main_file pdf file.
 
 
 Yina Wei
 - Wrote algorithm for and implemented: 
 - scale the data to gain the z score of dataset1 and dataset2
-- Variance Weighting for dataset1
-- variance weighting for dataset2
+- Variance Weighting
 - Run the final results and did model evaluation according to the performance matrix using ROC and MAE scores
 - Wrote ppt and Created a presentation.
 

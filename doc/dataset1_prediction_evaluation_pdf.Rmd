@@ -1,7 +1,7 @@
 ---
 title: "Prediction & Evaluation for the Dataset 1"
 author: "Saaya Yasuda"
-output: html_notebook
+output: pdf_document
 ---
 
 # Prediction & Evaluation for the Dataset 1
@@ -164,7 +164,6 @@ print("Best score when alpha = 10")
 alpha10 = scores[order(scores[,3],decreasing=T),]
 alpha10
 write.csv(alpha10,"./output/dataset1_result_alpha10.csv")
-
 
 ```
 

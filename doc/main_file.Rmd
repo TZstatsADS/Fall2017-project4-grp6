@@ -1,9 +1,13 @@
 ---
-title: "main_file"
-author: "Shiqi Duan"
+title: "Project 4: Collaborative Filtering - Group 6"
+author: "Shiqi Duan, Saaya Yasuda"
 date: "2017/11/29"
-output: html_document
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 4
 ---
+# Project 4: Collaborative Filtering - Group 6
 
 This file is currently a template for implementing collaborative filtering algorithms. We implement the methods on a two datasets, Microsoft Web data, and EachMovie, provided by the project instructors. The two datasets are splited into a training set and d test set by the intructors. 
 
@@ -20,7 +24,7 @@ library(matrixStats)
 library(dplyr)
 library(lsa)
 
-setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/doc")
+setwd("~/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/doc")
 # here replace it with your own path or manually set it in RStudio
 # to where this rmd file is located
 ```
@@ -73,9 +77,9 @@ test2 <- read.csv("../output/dataset2_test.csv",header=T)
 ```
 ## Step 2: Algorithm design
 
-Algorithm1: Cluster Model
+### Algorithm1: Cluster Model
 
-In Cluster Model, we only use it on dataset2, EachMovie. We assume there are C clusters and each user belongs to one cluster c. We use EM algorithm on training set to find the probability (mu) that each user belongs to a certain cluster and the probability (gamma) that in a certain cluster a user will rate a movie with a certain score. Then use the parameters mu and gamma to predict the scores in the test set. 
+In Cluster Model, we only use it on dataset2, EachMovie. We assume there are C clusters and each user belongs to one cluster c. We use EM algorithm on training set to find the probability (mu) that each user belongs to a certain cluster and the probability (gamma) that in a certain cluster a user will rate a movie with a certain score. Then use the parameters mu and gamma to predict the scores in the test set.   
 To determine the number of clusters to use in EM algorithm, we first run a 5-fold cross validation on the training set to get the cluster number with minimum cv-error.
 ```{r}
 # load processed dataset2
@@ -311,12 +315,17 @@ test_roc <- ifelse(test>=4,1,0)
 estimate_roc <- ifelse(estimate>=4,1,0)
 roc(as.vector(test_roc), as.vector(estimate_roc), na.rm = T)
 ```
-Algorithm2: Memory-based Algorithm
+
+
+### Algorithm2: Memory-based Algorithm
 In this Algorithm, there are four components we need to consider: Similarity Weight, Variance Weighting, Selecting Neighbors, and Rating Normalization. 
 
-Functions for Algorithm2
+### Functions for Algorithm2
 
-Similarity Weight: we use this to find the similarity correlation of different users
+#### Similarity Weight: 
+We use this to find the similarity correlation of different users.   
+
+These functions assume setwd("~/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/").   
 ```{r}
 # SW1: Spearman
 spearman_weight <- function(matrix){
@@ -391,22 +400,28 @@ run.sw1 = FALSE #If TURE run Spearman function on datasets
 run.sw2 = FALSE #If TURE run vector similarity function on datasets
 run.sw3 = FALSE #If TURE run mean squared difference function on datasets
 if(run.sw1){
-  w11 = spearman_weight(train1)
-  w12 = spearman_weight(train2)
-  write.cvs(w11,"../output/spearman_train1.csv")
-  write.cvs(w12,"../output/spearman_train1.csv")
+  #w11 = 
+  spearman_weight(train1)
+  #w12 = 
+  spearman_weight(train2)
+  #write.cvs(w11,"../output/spearman_train1.csv")
+  #write.cvs(w12,"../output/spearman_train1.csv")
 }
 if(run.sw2){
-  w21 = vector_similarity(train1)
-  w22 = vector_similarity(train2)
-  write.cvs(w21,"../output/vectorsimilarity_train1.csv")
-  write.cvs(w22,"../output/vectorsimilarity_train2.csv")
+  #w21 = 
+  vector_similarity(train1)
+  #w22 = 
+  vector_similarity(train2)
+  #write.cvs(w21,"../output/vectorsimilarity_train1.csv")
+  #write.cvs(w22,"../output/vectorsimilarity_train2.csv")
 }
 if(run.sw3){
-  w31 = mean_sq_diff(train1)
-  w32 = mean_sq_diff(train2)
-  write.csv(w31,"../output/meansqdiff_train1.csv")
-  write.csv(w32,"../output/meansqdiff_train2.csv")
+  #w31 = 
+  mean_sq_diff(train1)
+  #w32 = 
+  mean_sq_diff(train2)
+  #write.csv(w31,"../output/meansqdiff_train1.csv")
+  #write.csv(w32,"../output/meansqdiff_train2.csv")
 }
 
 # SW4: SimRank, we only nedd this method for dataset1, Microsoft Web data
@@ -513,7 +528,8 @@ if(run.sw4){
 }
 ```
 
-Variance Weighting: we use this to distinguish the items with high variance of rating. As variance weighting has to take use of the results of similarity weights, so we have different functions for each similarity weighting method.
+#### Variance Weighting
+We use this to distinguish the items with high variance of rating. As variance weighting has to take use of the results of similarity weights, so we have different functions for each similarity weighting method.
 ```{r}
 train2_vw <- train2
 train2_vw[is.na(train2_vw)]<-0
@@ -566,7 +582,8 @@ if(run.vw3){
 }
 ```
 
-Selecting Neighbors: we use this to select the users that are more similar to a certain user than others.
+#### Selecting Neighbors: 
+We use this to select the users that are more similar to a certain user than others.
 ```{r}
 train2_sn <- train2
 train2_sn[is.na(train2_sn)]<-0
@@ -659,7 +676,8 @@ if(run.sn){
 }
 ```
 
-Rating Normalization: we use Z-score to predict scores in this component.
+#### Rating Normalization: 
+We use Z-score to predict scores in this component.
 ```{r}
 z_score<-function(df, w, neighbor_matrix){
   #Input: Rating dataset with users in row and items in columns, Weight matrix between users
@@ -678,48 +696,180 @@ z_score<-function(df, w, neighbor_matrix){
 ```
 ## Step 3: Evaluation
 
-There are three evaluation methods we used. We used Ranked Scoring for evaluate dataset1, MAE and ROC for evaluate dataset2.Here are the algorithm functions for these three evaluation methods. For ROC, we used the function roc in package pROC. For ROC
+There are three evaluation methods we used. We used Ranked Scoring for evaluate dataset1, MAE and ROC for evaluate dataset2. Here are the algorithm functions for these three evaluation methods. For ROC, we used the function roc in package pROC.
+#### MAE for dataset 2
 ```{r}
-# Ranked Scoring
-randked_scoring <- function(pred_matrix, observed_matrix){
-  nrow = nrow(pred_matrix)
-  ncol = ncol(pred_matrix)
-  a_minus_one = nrow/2 - 1
-  
-  # rank/sort pred_matrix by vote value. Assuming d=0 here.
-  pred_matrix[pred_matrix<0] = 0
-  numerator_matrix = t(apply(pred_matrix, 1, sort,decreasing=T))
-  
-  # denominator of r_a
-  denom_vec = 2^(0:(ncol-1)/a_minus_one)
-  denom_mat = matrix(rep(denom_vec, nrow), nrow, ncol, byrow=T)
-
-  # get a vector of r_a
-  utility_matrix = numerator_matrix/denom_mat
-  r_a_vector = rowSums(utility_matrix)
-  
-  # get a r_a_max value
-  denom_mat2 = matrix(rep(denom_vec, nrow(observed_matrix)), 
-                      nrow(observed_matrix), ncol, byrow=T)
-  max_numerator_matrix = t(apply(observed_matrix, 1, sort,decreasing=T))
-  max_utility_matrix = max_numerator_matrix/denom_mat2
-  max_r_a_vector = rowSums(max_utility_matrix)
-  
-  # Get the r_a / r_a_max score
-  r = 100 * sum(r_a_vector)/sum(max_r_a_vector)
-  
-  return(r)
-}
 # MAE
 MAE <- function(pred, test){
   out = sum(abs(pred - test))/sum(test != 0)
   return(out)
 }
 ```
-When doing the evaluation, to compare different variants in each component, we read the recommended papers first. From the papers, we learn that Spearman should be better than vector similarity weighting and mean squared difference weighting, taking variance weighting will not make more significant contribution to the results, and the combination of weight-threshold and best-b-estimator will not be better than using only one selecting neighbor method from these two. However, we do not find evidence from papers whether SimRank is better than Spearman or not, nor which one of weight-threshold and best_n_neighbor is better than the other. So for dataset2 we just used Spearman and no variance weighting when comparing selecting neighbor methods(by ROC results). Then we get the best selecting neighbor methods, best_n_neighbor, and use it to compare variants in other components. For dataset1, we used no variance weighting and best_n_neighbor(based on paper and our results from dataset2) to compare similarity weighting methods and get the best similarity weighting method. Then use it while comparing variants in other components.
+
+#### Ranked Scoring functions for dataset 1
+```{r}
+# Ranked Scoring - 2 functions
+
+#######################################
+# Rank matrix function (helper function)
+# Input: predicted matrix & test set matrix.
+#        These matrices need to have user names in rownames.
+# Output: return the ranked test set matrix, based on predicted vote values.
+#######################################
+
+rank_matrix <- function(pred_matrix, observed_matrix){
+  nrow = nrow(observed_matrix)
+  ncol = ncol(observed_matrix)
+  ranked_mat = matrix(NA, nrow, ncol)
+  
+  for (r in 1:nrow){
+    # get username of the row
+    user_name = rownames(observed_matrix)[r] 
+    
+    # sort pred values
+    sorted_pred = sort(pred_matrix[user_name,], decreasing=TRUE) 
+    
+    # sort observed values based on pred values.
+    sorted_obs = unlist( observed_matrix[user_name,][names(sorted_pred)] )
+    
+    # save the ranked row in the new matrix.
+    ranked_mat[r,] = unname(sorted_obs)
+  }
+  rownames(ranked_mat) = rownames(observed_matrix)
+  return(ranked_mat)
+}
+
+#######################################
+# Ranked scroing function
+# Input: predicted matrix & test set matrix. Also alpha value.
+#        These matrices need to have user names in rownames.
+# Output: return the ranked score for the test set matrix
+#######################################
+
+randked_scoring <- function(pred_matrix, observed_matrix, alpha){
+  # Get ranked version of the observed_matrix
+  ranked_mat = rank_matrix(pred_matrix, observed_matrix)
+  
+  nrow = nrow(ranked_mat)
+  ncol = ncol(ranked_mat)
+  a_minus_one = alpha-1
+  
+  # Assuming d=0, this is the numerator for r_a. 
+  # There's no negative value in dataset 1, but just in case.
+  ranked_mat[ranked_mat<0] = 0
+  
+  # denominator of r_a & r_a_max
+  denom_vec = 2^(0:(ncol-1)/a_minus_one)
+  denom_mat = matrix(rep(denom_vec, nrow), nrow, ncol, byrow=T)
+  
+  # Get a vector of r_a
+  utility_matrix = ranked_mat/denom_mat
+  r_a_vector = rowSums(utility_matrix)
+  
+  # Rank the observed_matrix for r_a max in order to have the maximum achievable utility.
+  max_numerator_matrix = t(apply(observed_matrix, 1, sort,decreasing=T))
+  
+  # Get a vector of r_a max
+  max_utility_matrix = max_numerator_matrix/denom_mat
+  max_r_a_vector = rowSums(max_utility_matrix)
+  
+  # Get the r_a / r_a_max score
+  r = 100 * sum(r_a_vector)/sum(max_r_a_vector)
+  
+  return(r)
+
+  }
+
+```
+
+For ranked score, we initially had a large alpha value which returned really high scores with little variance. We added an alpha as a function input so that we can play with different alpha values, as the paper 1 suggested (paper 1 used 5 and 10).   
+
+For the dataset 1, [dataset1_prediction_evaluation.Rmd](../lib/dataset1_prediction_evaluation.Rmd) runs the prediction and evaluation. [The PDF version](dataset1_prediction_evaluation.pdf) with the output is also in the doc file.    
+
+Additional helper functions are defined in the file. Namely:   
+
+```{r}
+source('../lib/evaluation_ranked_scoring.r')
+source('../lib/z_score.R')
+
+#######################################
+# Helper 1: assign_rownames(dataset)
+# Most datasets contain usernames in the 1st col. Assigning them as rownames.
+#######################################
+assign_rownames = function(dataset){
+  rownames(dataset) = dataset[,1]
+  dataset = dataset[,-1]
+  return(dataset)
+}
+#######################################
+# Helper 2: evaluate(train, test, weight, neighbor)
+# Input: 4 matrices: train data, test data, weights, and neighbor matrix
+# Output: ranked score
+#######################################
+evaluate = function(train, test, weight, neighbor){
+  weight = assign_rownames(weight)
+  neighbor = assign_rownames(neighbor)
+  
+  #prediction
+  pred = z_score(train,weight,neighbor)
+  row.names(pred) = row.names(train)
+  
+  #for alpha values in ranked scoring formula:
+  avg_half_life = mean(rowSums(test)) # average number of sites visited by user.
+  avg_half_life = round(avg_half_life, 3)
+  alpha = c(avg_half_life, 5, 10) #paper 1 used 5 & 10 for alpha in ranked scoring.
+  
+  score_vec = vector()
+  for (a in alpha){
+    score_vec = c(score_vec, randked_scoring(pred, test, a))
+  }
+  names(score_vec) = alpha
+  return (score_vec)
+}
+```
+
+For the alpha values, we used the average number of sites the users visited (3.087) in addition to the suggested values, 5 and 10. We were able to compare and find some differences based on the alpha values.
+
+Please see the [dataset1_prediction_evaluation.pdf](dataset1_prediction_evaluation.pdf) for more details on how the functions were used.   
+
+
+When doing the evaluation, to compare different variants in each component, we read the recommended papers first. From the papers, we learn that Spearman should be better than vector similarity weighting and mean squared difference weighting, taking variance weighting will not make more significant contribution to the results, and the combination of weight-threshold and best-b-estimator will not be better than using only one selecting neighbor method from these two.    
+
+However, we do not find evidence from papers whether SimRank is better than Spearman or not, nor which one of weight-threshold and best_n_neighbor is better than the other. So for dataset2 we just used Spearman and no variance weighting when comparing selecting neighbor methods(by ROC results). Then we get the best selecting neighbor methods, best_n_neighbor, and use it to compare variants in other components. For dataset1, we used no variance weighting and best_n_neighbor(based on paper and our results from dataset2) to compare similarity weighting methods and get the best similarity weighting method. Then use it while comparing variants in other components.
+
+
 ## Step 4: Results and Conclusions
+
+### Dataset 1 Conclusion
+#### Best score when alpha = avg number of site visits per user: 3.087
+```{r}
+alpha3 <-read.csv("../output/dataset1_result_alpha3.csv",header=T)
+alpha3
+```
+
+#### Best score when alpha = 5
+```{r}
+alpha5 <-read.csv("../output/dataset1_result_alpha5.csv",header=T)
+alpha5
+```
+
+#### Best score when alpha = 10
+```{r}
+alpha10 <-read.csv("../output/dataset1_result_alpha10.csv",header=T)
+alpha10
+```
+
+Based on the results we obtained, for the dataset1, Vector Similarity + No Variance Weighting + Weight Threshold was our best model to the ranked score evaluation method, for all of the alpha values. The rest of the models performed in the identical order for alpha = 3.087 and alpha = 5. However, for alpha = 10, Vector Similarity + Variance Weighting + Weight Threshold performed better than the Spearman algorithims.
+
+In general, we found that the models with variance weighting didn't perform as well as no variance weighting. For this dataset, best_n_neighbor (bnn) particularly didn't perform well.
+
+See the [dataset1_prediction_evaluation.pdf](dataset1_prediction_evaluation.pdf) for more information.
+
+
+### Dataset 2 Conclusion
 ```{r}
 results<-read.table("../output/results.txt",header=T)
 results
 ```
+
 Based on the results we obtained, we conlcude that for dataset2, Spearman + No Variance Weighting + Best_n_neighbors is the best model with respect to ROC, and Cluster Model is the best model with respect to MAE. Overall we recommend Cluster model as our best one as it has a higher ROC than other models and we consider people are more interested in whether the algorithm could predict the score of an item correctly with repect to direction(visited or not, high score 4-6 or low score 1-3). If people are more interested in whether the algorithm could predict the scores with respect to how close it is to the actual score, they should chose Spearman + No Variance Weighting + Best_n_neighbors.

@@ -12,6 +12,7 @@ Term: Fall 2017
 	+ Saaya Yasuda
 	+ Yina Wei
 	+ Jiayu Ni
+
 + Project summary: For this project, we implemented different collaborative filtering algorithms on 2 datasets and evaluated the performances. Our team worked on:
 	- Similarity weight - Spearman
 	- Similarity weight - Vector Similarity
@@ -24,6 +25,8 @@ Term: Fall 2017
 	- Selecting Neighbors - Combined
 	- Rating normalization: Z-score
 	- Cluster models
+
+### Main file: [main_file.Rmd](doc/main_file.Rmd) or [the PDF version](doc/main_file).   
 
 Note: When you pull the csv files in the output folder, please use "git lfs pull." 
 The csv files larger than 100MB are uploaded using [git large file storage](https://git-lfs.github.com/).
