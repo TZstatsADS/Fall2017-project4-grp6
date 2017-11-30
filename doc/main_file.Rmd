@@ -20,7 +20,7 @@ library(matrixStats)
 library(dplyr)
 library(lsa)
 
-setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/data/")
+setwd("/Users/duanshiqi/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6/doc")
 # here replace it with your own path or manually set it in RStudio
 # to where this rmd file is located
 ```
@@ -36,8 +36,8 @@ process2 <- FALSE    # if TRUE, then process dataset2 in this main file
 
 # Prepocess dataset1
 if(process1){
-  train<-read.csv("./dataset1/data_train.csv", header = T)
-  test<-read.csv("./dataset1/data_test.csv", header = T)
+  train<-read.csv("../data/dataset1/data_train.csv", header = T)
+  test<-read.csv("../data/dataset1/data_test.csv", header = T)
   train<-train[,-1]
   test<-test[,-1]
   ### convert data into matrix
@@ -54,8 +54,8 @@ if(process1){
 # Prepocess dataset2
 
 if(process2){
-  train <- read.csv("./dataset2/data_train.csv",header=T)
-  test<-read.csv("./dataset2/data_test.csv",header=T)
+  train <- read.csv("../data/dataset2/data_train.csv",header=T)
+  test<-read.csv("../data/dataset2/data_test.csv",header=T)
   movie <- unique(train$Movie)
   c <-length(movie)
   
@@ -65,8 +65,8 @@ if(process2){
   write.csv(test_matrix,"../output/dataset2_test.csv")
 }
 # load processed dataset1
-train1 <- read.csv("./output/dataset1_train.csv",header=T)
-test1 <- read.csv("./output/dataset1_test.csv",header=T)
+train1 <- read.csv("../output/dataset1_train.csv",header=T)
+test1 <- read.csv("../output/dataset1_test.csv",header=T)
 # load processed dataset2
 train2 <- read.csv("../output/dataset2_train.csv",header=T)
 test2 <- read.csv("../output/dataset2_test.csv",header=T)
@@ -217,6 +217,8 @@ score_estimation_CM <- function(train_df, test_df, par){
 
 ## 5-fold cross-validation
 run.cm = FALSE #if TRUE, then run 5-fold cross-validation on training set of EachMovie
+c_list <- c(2,3,6,12) #cluster numebrs we would like to try
+
 if(run.cm){
   set.seed(2)
   K <- 5
@@ -227,7 +229,6 @@ if(run.cm){
   s <- sample(rep(1:K, c(rep(n.fold, K-1), n-(K-1)*n.fold)))  
   s1 <- sample(rep(1:K, c(rep(n1.fold, K-1), n1-(K-1)*n1.fold)))  
 
-  c_list <- c(2,3,6,12)
   validation_error <-  matrix(NA, K, length(c_list))
 
   train_df <- data.frame(matrix(NA, N, M))
@@ -386,9 +387,9 @@ train2 = train2[,-1]
 rownames(test2) = test2[,1]
 test2 = test2[,-1]
 
-rum.sw1 = FALSE #If TURE run Spearman function on datasets
-rum.sw2 = FALSE #If TURE run vector similarity function on datasets
-rum.sw3 = FALSE #If TURE run mean squared difference function on datasets
+run.sw1 = FALSE #If TURE run Spearman function on datasets
+run.sw2 = FALSE #If TURE run vector similarity function on datasets
+run.sw3 = FALSE #If TURE run mean squared difference function on datasets
 if(run.sw1){
   w11 = spearman_weight(train1)
   w12 = spearman_weight(train2)
@@ -677,7 +678,7 @@ z_score<-function(df, w, neighbor_matrix){
 ```
 ## Step 3: Evaluation
 
-There are three evaluation methods we used. We used Ranked Scoring for evaluate dataset1, MAE and ROC for evaluate dataset2.Here are the algorithm functions for these three evaluation methods. For ROC, we used the function roc in package pROC.
+There are three evaluation methods we used. We used Ranked Scoring for evaluate dataset1, MAE and ROC for evaluate dataset2.Here are the algorithm functions for these three evaluation methods. For ROC, we used the function roc in package pROC. For ROC
 ```{r}
 # Ranked Scoring
 randked_scoring <- function(pred_matrix, observed_matrix){
@@ -715,8 +716,10 @@ MAE <- function(pred, test){
   return(out)
 }
 ```
+When doing the evaluation, to compare different variants in each component, we read the recommended papers first. From the papers, we learn that Spearman should be better than vector similarity weighting and mean squared difference weighting, taking variance weighting will not make more significant contribution to the results, and the combination of weight-threshold and best-b-estimator will not be better than using only one selecting neighbor method from these two. However, we do not find evidence from papers whether SimRank is better than Spearman or not, nor which one of weight-threshold and best_n_neighbor is better than the other. So for dataset2 we just used Spearman and no variance weighting when comparing selecting neighbor methods(by ROC results). Then we get the best selecting neighbor methods, best_n_neighbor, and use it to compare variants in other components. For dataset1, we used no variance weighting and best_n_neighbor(based on paper and our results from dataset2) to compare similarity weighting methods and get the best similarity weighting method. Then use it while comparing variants in other components.
 ## Step 4: Results and Conclusions
 ```{r}
-
+results<-read.table("/Users/duanshiqi/Desktop/results.txt",header=T)
+results
 ```
-Based on the results we obtained, we conlcude that
+Based on the results we obtained, we conlcude that for dataset2, Spearman + No Variance Weighting + Best_n_neighbors is the best model with respect to ROC, and Cluster Model is the best model with respect to MAE. Overall we recommend Cluster model as our best one as it has a higher ROC than other models and we consider people are more interested in whether the algorithm could predict the score of an item correctly with repect to direction(visited or not, high score 4-6 or low score 1-3). If people are more interested in whether the algorithm could predict the scores with respect to how close it is to the actual score, they should chose Spearman + No Variance Weighting + Best_n_neighbors.
