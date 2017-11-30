@@ -8,189 +8,155 @@ output: html_notebook
 knitr::opts_knit$set(root.dir = '~/Documents/GitHub/fall2017-project4-fall2017-proj4-grp6')
 ```
 
-Note:
-Note: When you pull the csv files in the output folder, please use "git lfs pull." 
-The files bigger than 100mb are uploaded using [git large file storage](https://git-lfs.github.com/).
-
-Load dataset
-```{r}
-#rm(list=ls())
-test1 <- read.csv("./output/dataset1_test.csv",header=T)
-rownames(test1) = test1[,1]
-test1 = test1[,-1]
-
-train1 <- read.csv("./output/dataset1_train.csv",header=T)
-rownames(train1) = train1[,1]
-train1 = train1[,-1]
-```
-
 Load source
 ```{r}
+#rm(list=ls())
 source('./lib/evaluation_ranked_scoring.r')
 source('./lib/z_score.R')
 ```
 
-Prediction
+Define helper functions
 
-Load correlation matrices for prediction.
-
-Similarity weight - Spearman & no variance & SN thresh
 ```{r}
-SIM_Spearman_mat <- read.csv("./output/spearman_train1.csv",header=T)
-neighbor_SIM_Spearman_mat <- read.csv("./output/neighbor_thresh_spearman.csv",header=T)
-
-rownames(SIM_Spearman_mat) = SIM_Spearman_mat[,1]
-SIM_Spearman_mat = SIM_Spearman_mat[,-1]
-rownames(neighbor_SIM_Spearman_mat) = neighbor_SIM_Spearman_mat[,1]
-neighbor_SIM_Spearman_mat = neighbor_SIM_Spearman_mat[,-1]
-
-PRED_SIM_Spearman = z_score(train1, w=SIM_Spearman_mat, neighbor_matrix= neighbor_SIM_Spearman_mat)
-
-file_name="./output/PRED_SIM_Spearman.csv"
-write.csv(PRED_SIM_Spearman,file=file_name)
-
-SCORE_SIM_Spearman= randked_scoring(PRED_SIM_Spearman,test1)
-SCORE_SIM_Spearman
+#######################################
+# Helper 1: assign_rownames(dataset)
+# Most datasets contain usernames in the 1st col. Assigning them as rownames.
+#######################################
+assign_rownames = function(dataset){
+  rownames(dataset) = dataset[,1]
+  dataset = dataset[,-1]
+  return(dataset)
+}
 ```
 
-Similarity weight - Spearman & variance weighting & SN thresh
 ```{r}
-SIM_Spearman_mat_vw <- read.csv("./output/spearman_vm_train1.csv",header=T)
-neighbor_SIM_Spearman_mat_vw <- read.csv("./output/neighbor_thresh_spearman_wv.csv",header=T)
-
-rownames(SIM_Spearman_mat_vw) = SIM_Spearman_mat_vw[,1]
-SIM_Spearman_mat_vw = SIM_Spearman_mat_vw[,-1]
-rownames(neighbor_SIM_Spearman_mat_vw) = neighbor_SIM_Spearman_mat_vw[,1]
-neighbor_SIM_Spearman_mat_vw = neighbor_SIM_Spearman_mat_vw[,-1]
-
-PRED_SIM_Spearman_vw = z_score(train1, w=SIM_Spearman_mat_vw, neighbor_matrix= neighbor_SIM_Spearman_mat_vw)
-
-file_name="./output/PRED_SIM_Spearman_vw.csv"
-write.csv(PRED_SIM_Spearman_vw,file=file_name)
-
-SCORE_SIM_Spearman_vw= randked_scoring(PRED_SIM_Spearman_vw,test1)
-SCORE_SIM_Spearman_vw
-
-```
-
-Similarity weight - Vec Sim  & no variance weighting & SN thresh
-```{r}
-SIM_vec_similarity_mat <- read.csv("./output/vectorsimilarity_train1.csv",header=T)
-neighbor_SIM_vec_similarity_mat <- read.csv("./output/neighbor_thresh_vecsim.csv",header=T)
-
-rownames(SIM_vec_similarity_mat) = SIM_vec_similarity_mat[,1]
-SIM_vec_similarity_mat = SIM_vec_similarity_mat[,-1]
-rownames(neighbor_SIM_vec_similarity_mat) = neighbor_SIM_vec_similarity_mat[,1]
-neighbor_SIM_vec_similarity_mat = neighbor_SIM_vec_similarity_mat[,-1]
-
-PRED_SIM_vec_similarity_mat = z_score(train1, w=SIM_vec_similarity_mat, neighbor_matrix= neighbor_SIM_vec_similarity_mat)
-
-file_name="./output/PRED_SIM_vec_similarity_mat.csv"
-write.csv(PRED_SIM_vec_similarity_mat,file=file_name)
-
-SCORE_SIM_vec_similarity_mat= randked_scoring(PRED_SIM_vec_similarity_mat,test1)
-SCORE_SIM_vec_similarity_mat
+#######################################
+# Helper 2: evaluate(train, test, weight, neighbor, alpha)
+# Input: 4 matrices: train data, test data, weights, and neighbor matrix
+# Output: ranked score
+#######################################
+evaluate = function(train, test, weight, neighbor){
+  weight = assign_rownames(weight)
+  neighbor = assign_rownames(neighbor)
+  
+  #prediction
+  pred = z_score(train,weight,neighbor)
+  row.names(pred) = row.names(train)
+  
+  #for alpha values in ranked scoring formula:
+  avg_half_life = mean(rowSums(test)) # average number of sites visited by user.
+  avg_half_life = round(avg_half_life, 3)
+  alpha = c(avg_half_life, 5, 10) #paper 1 used 5 & 10 for alpha in ranked scoring.
+  
+  score_vec = vector()
+  for (a in alpha){
+    score_vec = c(score_vec, randked_scoring(pred, test, a))
+  }
+  names(score_vec) = alpha
+  return (score_vec)
+}
 
 ```
 
-Similarity weight - Vec Sim  & variance weighting & SN thresh
+Load datasets
 ```{r}
-SIM_vec_similarity_mat_vw <- read.csv("./output/vectorsimilarity_vm_train1.csv",header=T)
-neighbor_SIM_vec_similarity_mat_vw <- read.csv("./output/neighbor_thresh_vecsim_vm.csv",header=T)
+train1 <- read.csv("./output/dataset1_train.csv",header=T)
+test1 <- read.csv("./output/dataset1_test.csv",header=T)
 
-rownames(SIM_vec_similarity_mat_vw) = SIM_vec_similarity_mat_vw[,1]
-SIM_vec_similarity_mat_vw = SIM_vec_similarity_mat_vw[,-1]
-rownames(neighbor_SIM_vec_similarity_mat_vw) = neighbor_SIM_vec_similarity_mat_vw[,1]
-neighbor_SIM_vec_similarity_mat_vw = neighbor_SIM_vec_similarity_mat_vw[,-1]
+train1 = assign_rownames(train1)
+test1 = assign_rownames(test1)
+```
 
-PRED_SIM_vec_similarity_mat_vw = z_score(train1, w=SIM_vec_similarity_mat_vw, neighbor_matrix= neighbor_SIM_vec_similarity_mat_vw)
+Load correlation matrices & neighbor matrices for prediction.
 
-file_name="./output/PRED_SIM_vec_similarity_mat_vw.csv"
-write.csv(PRED_SIM_vec_similarity_mat_vw,file=file_name)
+Note: When you pull the csv files in the output folder in Git, please use "git lfs pull." 
+The files bigger than 100mb are uploaded using [git large file storage](https://git-lfs.github.com/).
 
-SCORE_SIM_vec_similarity_mat_vw= randked_scoring(PRED_SIM_vec_similarity_mat_vw,test1)
-SCORE_SIM_vec_similarity_mat_vw
+```{r}
+Spearman_SW = read.csv("./output/spearman_train1.csv",header=T)
+Spearman_thresh = read.csv("./output/neighbor_thresh_spearman.csv",header=T)
+Spearman_bnn = read.csv("./output/neighbor_bnn_spearman.csv",header=T)
+Spearman_combo = read.csv("./output/neighbor_comb_spearman.csv",header=T)
+
+Spearman_VW = read.csv("./output/spearman_vm_train1.csv",header=T)
+Spearman_VW_thresh = read.csv("./output/neighbor_thresh_spearman_wv.csv",header=T)
+Spearman_VW_bnn = read.csv("./output/neighbor_bnn_spearman_vw.csv",header=T)
+
+VecSim_SW = read.csv("./output/vectorsimilarity_train1.csv",header=T)
+VecSim_thresh = read.csv("./output/neighbor_thresh_vecsim.csv",header=T)
+VecSim_bnn = read.csv("./output/neighbor_bnn_vecsim.csv",header=T)
+
+VecSim_VW = read.csv("./output/vectorsimilarity_vm_train1.csv",header=T)
+VecSim_VW_thresh = read.csv("./output/neighbor_thresh_vecsim_vm.csv",header=T)
+VecSim_VW_bnn = read.csv("./output/neighbor_bnn_vecsim_vm.csv",header=T)
+```
+
+
+Step 1: Compare Similarity Weighting (SW)
+Fix variance weighting (VW) & neighbor selection (NS) to be no VW and Weight Threshold.
+Then compare the scores between the SW algorithms.
+```{r}
+SCORE_Spearman_SW = evaluate(train1, test1, Spearman_SW, Spearman_thresh)
+SCORE_VecSim_SW = evaluate(train1, test1, VecSim_SW, VecSim_thresh)
+
+SW_score = rbind(SCORE_Spearman_SW, SCORE_VecSim_SW)
+rownames(SW_score) = c("Spearman with NS thresh & No VW","VecSim with NS thresh & no VW")
+SW_score
+```
+Vector Similarity does better.
+
+
+Step 2: Compare Variance Weighting (VW)
+Fix neighbor selection (NS) to be Weight Threshold.
+Then compare the scores between the VW algorithms.
+```{r}
+SCORE_Spearman_VW = evaluate(train1, test1, Spearman_VW, Spearman_VW_thresh)
+SCORE_VecSim_VW = evaluate(train1, test1, VecSim_VarW, VecSim_VW_thresh)
+  
+VW_score = rbind(SCORE_Spearman_VW, SCORE_VecSim_VW)
+rownames(VW_score) = c("Spearman with NS thresh & VW","VecSim with NS thresh & VW")
+VW_score
+```
+Variance weighting didn't improve the score.
+
+
+Step 3: Compare Neighbor Selection (NS)
+Fix variance weighting (VW) to be no VW.
+Then compare the scores between the NS algorithms.
+```{r}
+SCORE_Spearman_bnn = evaluate(train1, test1, Spearman_SW, Spearman_bnn)
+SCORE_Spearman_combo = evaluate(train1, test1, Spearman_SW, Spearman_combo)
+SCORE_VecSim_bnn = evaluate(train1, test1, VecSim_SW, VecSim_bnn)
+
+NS_score = rbind(SCORE_Spearman_bnn,SCORE_Spearman_combo,SCORE_VecSim_bnn)
+rownames(NS_score) = c("Spearman with NS bnn & No VW",
+                       "Spearman with NS combo & No VW",
+                       "VecSim with NS bnn & No VW")
+NS_score
+```
+Spearman with combo is very close to Spearman with Weight Threshold.
+
+```{r}
+scores = rbind(SW_score,VW_score,NS_score)
+
+print("Best score when alpha = avg number of site visits per user")
+scores[order(scores[,1],decreasing=T),]
+
+print("Best score when alpha = 5")
+scores[order(scores[,2],decreasing=T),]
+
+print("Best score when alpha = 10")
+scores[order(scores[,3],decreasing=T),]
 
 ```
 
-Similarity weight - Spearman & no variance & SN BNN
-```{r}
-SIM_Spearman_mat <- read.csv("./output/spearman_train1.csv",header=T)
-neighbor_SIM_Spearman_mat <- read.csv("./output/neighbor_bnn_spearman.csv",header=T)
+Conclusion:
+"Vector Similarity + no variance weighting (VW) + Weight Threshold neighbor selection (NS)""
+is the best.
 
-rownames(SIM_Spearman_mat) = SIM_Spearman_mat[,1]
-SIM_Spearman_mat = SIM_Spearman_mat[,-1]
-rownames(neighbor_SIM_Spearman_mat) = neighbor_SIM_Spearman_mat[,1]
-neighbor_SIM_Spearman_mat = neighbor_SIM_Spearman_mat[,-1]
-
-PRED_SIM_Spearman_bnn = z_score(train1, w=SIM_Spearman_mat, neighbor_matrix= neighbor_SIM_Spearman_mat)
-
-file_name="./output/PRED_SIM_Spearman_bnn.csv"
-write.csv(PRED_SIM_Spearman_bnn,file=file_name)
-
-SCORE_SIM_Spearman_bnn= randked_scoring(PRED_SIM_Spearman_bnn,test1)
-SCORE_SIM_Spearman_bnn
-```
-
-Similarity weight - Spearman & variance weighting & SN BNN
-```{r}
-SIM_Spearman_mat_vw <- read.csv("./output/spearman_vm_train1.csv",header=T)
-neighbor_SIM_Spearman_mat_vw <- read.csv("./output/neighbor_bnn_spearman_vw.csv",header=T)
-
-rownames(SIM_Spearman_mat_vw) = SIM_Spearman_mat_vw[,1]
-SIM_Spearman_mat_vw = SIM_Spearman_mat_vw[,-1]
-rownames(neighbor_SIM_Spearman_mat_vw) = neighbor_SIM_Spearman_mat_vw[,1]
-neighbor_SIM_Spearman_mat_vw = neighbor_SIM_Spearman_mat_vw[,-1]
-
-PRED_SIM_Spearman_vw_bnn = z_score(train1, w=SIM_Spearman_mat_vw, neighbor_matrix= neighbor_SIM_Spearman_mat_vw)
-
-file_name="./output/PRED_SIM_Spearman_vw_bnn.csv"
-write.csv(PRED_SIM_Spearman_vw_bnn,file=file_name)
-
-SCORE_SIM_Spearman_vw_bnn= randked_scoring(PRED_SIM_Spearman_vw_bnn,test1)
-SCORE_SIM_Spearman_vw_bnn
-
-```
-
-Similarity weight - Vec Sim  & no variance weighting & SN BNN
-```{r}
-SIM_vec_similarity_mat <- read.csv("./output/vectorsimilarity_train1.csv",header=T)
-neighbor_SIM_vec_similarity_mat <- read.csv("./output/neighbor_bnn_vecsim.csv",header=T)
-
-rownames(SIM_vec_similarity_mat) = SIM_vec_similarity_mat[,1]
-SIM_vec_similarity_mat = SIM_vec_similarity_mat[,-1]
-rownames(neighbor_SIM_vec_similarity_mat) = neighbor_SIM_vec_similarity_mat[,1]
-neighbor_SIM_vec_similarity_mat = neighbor_SIM_vec_similarity_mat[,-1]
-
-PRED_SIM_vec_similarity_mat_bnn = z_score(train1, w=SIM_vec_similarity_mat, neighbor_matrix= neighbor_SIM_vec_similarity_mat)
-
-file_name="./output/PRED_SIM_vec_similarity_mat_bnn.csv"
-write.csv(PRED_SIM_vec_similarity_mat_bnn,file=file_name)
-
-SCORE_SIM_vec_similarity_mat_bnn= randked_scoring(PRED_SIM_vec_similarity_mat_bnn,test1)
-SCORE_SIM_vec_similarity_mat_bnn
-
-```
-
-Similarity weight - Vec Sim  & variance weighting & SN thresh
-```{r}
-SIM_vec_similarity_mat_vw <- read.csv("./output/vectorsimilarity_vm_train1.csv",header=T)
-neighbor_SIM_vec_similarity_mat_vw <- read.csv("./output/neighbor_thresh_vecsim_vm.csv",header=T)
-
-rownames(SIM_vec_similarity_mat_vw) = SIM_vec_similarity_mat_vw[,1]
-SIM_vec_similarity_mat_vw = SIM_vec_similarity_mat_vw[,-1]
-rownames(neighbor_SIM_vec_similarity_mat_vw) = neighbor_SIM_vec_similarity_mat_vw[,1]
-neighbor_SIM_vec_similarity_mat_vw = neighbor_SIM_vec_similarity_mat_vw[,-1]
-
-PRED_SIM_vec_similarity_mat_vw = z_score(train1, w=SIM_vec_similarity_mat_vw, neighbor_matrix= neighbor_SIM_vec_similarity_mat_vw)
-
-file_name="./output/PRED_SIM_vec_similarity_mat_vw.csv"
-write.csv(PRED_SIM_vec_similarity_mat_vw,file=file_name)
-
-SCORE_SIM_vec_similarity_mat_vw= randked_scoring(PRED_SIM_vec_similarity_mat_vw,test1)
-SCORE_SIM_vec_similarity_mat_vw
-
-```
-
+Changing the alpha values slightly change the ranks. For a=10, for example,
+"Vector Similarity + variance weighting + Weight Threshold" 
+performed better than "Spearman + variance weighting + Weight Threshold",
+but that's not the case for a=3.087 and a=5.
 
 

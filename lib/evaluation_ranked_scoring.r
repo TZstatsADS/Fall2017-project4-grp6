@@ -1,5 +1,5 @@
 #######################################
-# Evaluation for dataset1 - Ranked scroing function
+# Evaluation for dataset1 - Ranked scroing functions
 # Saaya Yasuda (sy2569)
 #######################################
 
@@ -7,37 +7,66 @@
 #setwd('~/Documents/Github/fall2017-project4-fall2017-proj4-grp6')
 
 #######################################
-# Ranked scroing function
-# It returns a score up to 100
+# Rank matrix function (helper function)
+# Input: predicted matrix & test set matrix.
+#        These matrices need to have user names in rownames.
+# Output: return the ranked test set matrix, based on predicted vote values.
 #######################################
 
-# for testing:
-#m <- 4
-#n <- 3
-#matrix = round(matrix(runif(m * n), m, n))
+rank_matrix <- function(pred_matrix, observed_matrix){
+  nrow = nrow(observed_matrix)
+  ncol = ncol(observed_matrix)
+  ranked_mat = matrix(NA, nrow, ncol)
+  
+  for (r in 1:nrow){
+    # get username of the row
+    user_name = rownames(observed_matrix)[r] 
+    
+    # sort pred values
+    sorted_pred = sort(pred_matrix[user_name,], decreasing=TRUE) 
+    
+    # sort observed values based on pred values.
+    sorted_obs = unlist( observed_matrix[user_name,][names(sorted_pred)] )
+    
+    # save the ranked row in the new matrix.
+    ranked_mat[r,] = unname(sorted_obs)
+  }
+  rownames(ranked_mat) = rownames(observed_matrix)
+  return(ranked_mat)
+}
 
-randked_scoring <- function(pred_matrix, observed_matrix){
-  nrow = nrow(pred_matrix)
-  ncol = ncol(pred_matrix)
-  a_minus_one = nrow/2 - 1
+#######################################
+# Ranked scroing function
+# Input: predicted matrix & test set matrix.
+#        These matrices need to have user names in rownames.
+# Output: return the ranked score for the test set matrix
+#######################################
+
+randked_scoring <- function(pred_matrix, observed_matrix, alpha){
+  # Get ranked version of the observed_matrix
+  ranked_mat = rank_matrix(pred_matrix, observed_matrix)
   
-  # rank/sort pred_matrix by vote value. Assuming d=0 here.
-  pred_matrix[pred_matrix<0] = 0
-  numerator_matrix = t(apply(pred_matrix, 1, sort,decreasing=T))
+  nrow = nrow(ranked_mat)
+  ncol = ncol(ranked_mat)
+  a_minus_one = alpha-1
   
-  # denominator of r_a
+  # Assuming d=0, this is the numerator for r_a. 
+  # There's no negative value in dataset 1, but just in case.
+  ranked_mat[ranked_mat<0] = 0
+  
+  # denominator of r_a & r_a_max
   denom_vec = 2^(0:(ncol-1)/a_minus_one)
   denom_mat = matrix(rep(denom_vec, nrow), nrow, ncol, byrow=T)
-
-  # get a vector of r_a
-  utility_matrix = numerator_matrix/denom_mat
+  
+  # Get a vector of r_a
+  utility_matrix = ranked_mat/denom_mat
   r_a_vector = rowSums(utility_matrix)
   
-  # get a r_a_max value
-  denom_mat2 = matrix(rep(denom_vec, nrow(observed_matrix)), 
-                      nrow(observed_matrix), ncol, byrow=T)
+  # Rank the observed_matrix for r_a max in order to have the maximum achievable utility.
   max_numerator_matrix = t(apply(observed_matrix, 1, sort,decreasing=T))
-  max_utility_matrix = max_numerator_matrix/denom_mat2
+  
+  # Get a vector of r_a max
+  max_utility_matrix = max_numerator_matrix/denom_mat
   max_r_a_vector = rowSums(max_utility_matrix)
   
   # Get the r_a / r_a_max score
@@ -46,43 +75,3 @@ randked_scoring <- function(pred_matrix, observed_matrix){
   return(r)
 }
 
-### for testing:
-m <- 4
-n <- 3
-observed_matrix = round(matrix(runif(m * n), m, n))
-pred_matrix = matrix(runif(m * n), m, n)
-
-nrow = nrow(pred_matrix)
-ncol = ncol(pred_matrix)
-a_minus_one = nrow/2 - 1
-
-
-#randked_scoring(pred_matrix,observed_matrix)
-
-########
-# written by Shiqi:
-randked_scoring_shiqi <- function(matrix){
-  N = nrow(matrix)
-  M = ncol(matrix)
-  a_minus_one = nrow/2 - 1
-  d = 0
-  # rank/sort by vote value
-  numerator_matrix = max(matrix-d,0)
-  
-  # denominator of r_a
-  denom_vec = 2^(1:M/a_minus_one)
-  denom_mat = matrix(rep(denom_vec, N), N, M, byrow=T)
-  
-  # get a vector of r_a
-  utility_matrix = numerator_matrix*matrix/denom_mat
-  r_a_vector = rowSums(utility_matrix)
-  
-  # get a r_a_max value
-  max_utility_vec = numerator_matrix/denom_mat
-  max_r_a = rowSums(max_utility_vec)
-  
-  # Get the r_a / r_a_max score
-  r = 100 * sum(r_a_vector)/sum(max_r_a * ncol)
-  
-  return(r)
-}
