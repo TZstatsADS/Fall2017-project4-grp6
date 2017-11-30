@@ -26,7 +26,7 @@ Term: Fall 2017
 	- Rating normalization: Z-score
 	- Cluster models
 
-### Main file: [main_file.Rmd](doc/main_file.Rmd) or [the PDF version](doc/main_file).   
+### Main file: [main_file.Rmd](doc/main_file.Rmd) or [the PDF version](doc/main_file.pdf).   
 
 Note: When you pull the csv files in the output folder, please use "git lfs pull." 
 The csv files larger than 100MB are uploaded using [git large file storage](https://git-lfs.github.com/).
