@@ -36,7 +36,12 @@ Saaya Yasuda
 
 
 Yina Wei
-- Created a presentation.
+－Wrote algorithm for and implemented: 
+  scale the data to gain the z score of dataset1 and dataset2
+  Variance Weighting for dataset1
+  variance weighting for dataset2
+- Run the final results and did model evaluation according to the performance matrix using ROC and MAE scores
+- Wrote ppt and Created a presentation.
 
 
 Jiayu Ni
