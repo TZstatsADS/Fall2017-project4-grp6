@@ -5,9 +5,9 @@ output: html_notebook
 ---
 
 # Prediction & Evaluation for the Dataset 1
-project: 4
-group: 6
-author: Saaya Yasuda
+project: 4  
+group: 6  
+author: Saaya Yasuda  
 
 ## Preparation
 ```{r setup,include=FALSE}
@@ -22,8 +22,8 @@ source('./lib/z_score.R')
 ```
 
 ### Define helper functions
-*Helper 1: assign_rownames(dataset)*
-Most datasets contain usernames in the 1st col. Assigning them as rownames.
+*Helper 1: assign_rownames(dataset)*  
+Most datasets contain usernames in the 1st col. Assigning them as rownames.  
 ```{r}
 #######################################
 # Helper 1: assign_rownames(dataset)
@@ -37,8 +37,8 @@ assign_rownames = function(dataset){
 ```
 
 *Helper 2: evaluate(train, test, weight, neighbor)*
-*Input:* 4 matrices: train data, test data, weights, and neighbor matrix
-*Output:* ranked score
+*Input:* 4 matrices: train data, test data, weights, and neighbor matrix  
+*Output:* ranked score  
 ```{r}
 #######################################
 # Helper 2: evaluate(train, test, weight, neighbor)
@@ -103,8 +103,8 @@ VecSim_VW_bnn = read.csv("./output/neighbor_bnn_vecsim_vm.csv",header=T)
 
 
 ## Step 1: Compare Similarity Weighting (SW)
-Fix variance weighting (VW) & neighbor selection (NS) to be no VW and Weight Threshold.
-Then compare the scores between the SW algorithms.
+Fix variance weighting (VW) & neighbor selection (NS) to be no VW and Weight Threshold.  
+Then compare the scores between the SW algorithms.  
 ```{r}
 SCORE_Spearman_SW = evaluate(train1, test1, Spearman_SW, Spearman_thresh)
 SCORE_VecSim_SW = evaluate(train1, test1, VecSim_SW, VecSim_thresh)
@@ -113,12 +113,12 @@ SW_score = rbind(SCORE_Spearman_SW, SCORE_VecSim_SW)
 rownames(SW_score) = c("Spearman with NS thresh & No VW","VecSim with NS thresh & no VW")
 SW_score
 ```
-*Vector Similarity does better.*
+*Vector Similarity does better.*  
 
 
 ## Step 2: Compare Variance Weighting (VW)
-Fix neighbor selection (NS) to be Weight Threshold.
-Then compare the scores between the VW algorithms.
+Fix neighbor selection (NS) to be Weight Threshold.  
+Then compare the scores between the VW algorithms.  
 ```{r}
 SCORE_Spearman_VW = evaluate(train1, test1, Spearman_VW, Spearman_VW_thresh)
 SCORE_VecSim_VW = evaluate(train1, test1, VecSim_VarW, VecSim_VW_thresh)
@@ -127,12 +127,12 @@ VW_score = rbind(SCORE_Spearman_VW, SCORE_VecSim_VW)
 rownames(VW_score) = c("Spearman with NS thresh & VW","VecSim with NS thresh & VW")
 VW_score
 ```
-*Variance weighting didn't improve the score.*
+*Variance weighting didn't improve the score.*  
 
 
 ## Step 3: Compare Neighbor Selection (NS)
-Fix variance weighting (VW) to be no VW.
-Then compare the scores between the NS algorithms.
+Fix variance weighting (VW) to be no VW.  
+Then compare the scores between the NS algorithms.  
 ```{r}
 SCORE_Spearman_bnn = evaluate(train1, test1, Spearman_SW, Spearman_bnn)
 SCORE_Spearman_combo = evaluate(train1, test1, Spearman_SW, Spearman_combo)
@@ -144,7 +144,7 @@ rownames(NS_score) = c("Spearman with NS bnn & No VW",
                        "VecSim with NS bnn & No VW")
 NS_score
 ```
-*Spearman with combo did very well. bnn doesn't seem to work well for this.*
+*Spearman with combo did very well. bnn doesn't seem to work well for this.*  
 
 ## Conclusion
 ```{r}
@@ -161,7 +161,7 @@ scores[order(scores[,3],decreasing=T),]
 
 ```
 
-#### "Vector Similarity + no variance weighting (VW) + Weight Threshold neighbor selection (NS)" is the best.
+#### "Vector Similarity + no variance weighting (VW) + Weight Threshold neighbor selection (NS)" is the best.  
 
 Changing the alpha values slightly change the ranks. For a=10, for example,
 "Vector Similarity + variance weighting + Weight Threshold" 
