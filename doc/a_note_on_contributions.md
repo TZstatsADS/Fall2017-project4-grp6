@@ -36,6 +36,7 @@ Saaya Yasuda
 
 
 Yina Wei
+
 －Wrote algorithm for and implemented: 
   scale the data to gain the z score of dataset1 and dataset2
   Variance Weighting for dataset1
