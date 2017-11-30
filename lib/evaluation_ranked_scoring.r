@@ -16,8 +16,6 @@
 #n <- 3
 #matrix = round(matrix(runif(m * n), m, n))
 
-
-
 randked_scoring <- function(pred_matrix, observed_matrix){
   nrow = nrow(pred_matrix)
   ncol = ncol(pred_matrix)
@@ -28,18 +26,18 @@ randked_scoring <- function(pred_matrix, observed_matrix){
   numerator_matrix = t(apply(pred_matrix, 1, sort,decreasing=T))
   
   # denominator of r_a
-  denom_vector = rep(NA, ncol)
-  for (j in 1:ncol){
-    denom_vector[j] <- 2^((j-1)/a_minus_one)
-  }
-  
+  denom_vec = 2^(0:(ncol-1)/a_minus_one)
+  denom_mat = matrix(rep(denom_vec, nrow), nrow, ncol, byrow=T)
+
   # get a vector of r_a
-  utility_matrix = numerator_matrix %*% diag(1 / denom_vector)
+  utility_matrix = numerator_matrix/denom_mat
   r_a_vector = rowSums(utility_matrix)
   
   # get a r_a_max value
+  denom_mat2 = matrix(rep(denom_vec, nrow(observed_matrix)), 
+                      nrow(observed_matrix), ncol, byrow=T)
   max_numerator_matrix = t(apply(observed_matrix, 1, sort,decreasing=T))
-  max_utility_matrix = max_numerator_matrix %*% diag(1 / denom_vector)
+  max_utility_matrix = max_numerator_matrix/denom_mat2
   max_r_a_vector = rowSums(max_utility_matrix)
   
   # Get the r_a / r_a_max score
@@ -58,27 +56,6 @@ nrow = nrow(pred_matrix)
 ncol = ncol(pred_matrix)
 a_minus_one = nrow/2 - 1
 
-# rank/sort pred_matrix by vote value. Assuming d=0 here.
-pred_matrix[pred_matrix<0] = 0
-numerator_matrix = t(apply(pred_matrix, 1, sort,decreasing=T))
-
-# denominator of r_a
-denom_vector = rep(NA, ncol)
-for (j in 1:ncol){
-  denom_vector[j] <- 2^((j-1)/a_minus_one)
-}
-
-# get a vector of r_a
-utility_matrix = numerator_matrix %*% diag(1 / denom_vector)
-r_a_vector = rowSums(utility_matrix)
-
-# get a r_a_max value
-max_numerator_matrix = t(apply(observed_matrix, 1, sort,decreasing=T))
-max_utility_matrix = max_numerator_matrix %*% diag(1 / denom_vector)
-max_r_a_vector = rowSums(max_utility_matrix)
-
-# Get the r_a / r_a_max score
-r = 100 * sum(r_a_vector)/sum(max_r_a_vector)
 
 #randked_scoring(pred_matrix,observed_matrix)
 
