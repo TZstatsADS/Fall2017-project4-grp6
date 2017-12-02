@@ -37,12 +37,4 @@ Saaya Yasuda
 
 
 Yina Wei
-- Wrote algorithm for and implemented: 
-- - added Variance Weighting function
-- - scale the data to gain the z score of dataset1 and dataset2
-- - Kept the final results and did model evaluation according to the performance matrix using ROC and MAE scores
 - Created a presentation ppt.
-
-
-Jiayu Ni
-- Wrote algorithm for Similarity weight - Pearson correlation.
